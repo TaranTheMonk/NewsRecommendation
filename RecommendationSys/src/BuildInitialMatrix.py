@@ -45,7 +45,7 @@ def BuildP(Dict):
 # P-Matrix Finished #
 #####################
 
-def getDictionary():
+def getNewsDictionary():
     ##Import News Dictionary
     DictionaryPath = 'ConfigData/'
     DictionaryName = 'NewsDictionary.csv'
@@ -59,7 +59,7 @@ def getDictionary():
     return NewsDict
 
 def BuildQ(Dict):
-    NewsDict = getDictionary()
+    NewsDict = getNewsDictionary()
     for key in Dict.keys():
         Dict[key] = bal.QDataTransform(Dict[key], NewsDict)
     print('Matrix Finished')

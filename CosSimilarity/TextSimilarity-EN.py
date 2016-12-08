@@ -8,7 +8,6 @@ import numpy as np
 import time, random
 from nltk.classify import SklearnClassifier
 from sklearn.naive_bayes import MultinomialNB
-import k_means
 from nltk import FreqDist
 from gensim import similarities
 import computing as cp

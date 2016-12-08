@@ -1,4 +1,5 @@
 import random
+import copy
 
 ##Merge when computing the count of each module
 
@@ -36,3 +37,9 @@ def BuildCategoryList(matrix):
                 break
         i = i + 1
     return list
+
+def BuildList(Prob_Matrix):
+    List = copy.deepcopy(Prob_Matrix)
+    for key in List:
+        List[key] = BuildCategoryList(List[key])
+    return List
