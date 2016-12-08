@@ -5,6 +5,8 @@
 
 import MainAlgorithm as mal
 import csv
+import copy
+from gensim import similarities
 
 #############################
 ## Merge P-Prob and Q-Prob ##
@@ -29,6 +31,27 @@ with open('ConfigData/' + Q_Prob_Path, 'r', encoding = 'utf-8') as f:
 f.close()
 
 print('Data Import Finished')
-
-Weight = 0.5
+Weight = 1
 Prob_Matrix = mal.mergeProb(P_Matrix, Q_Matrix, Weight)
+print('Probability Matrix Merged')
+
+#########################
+## Build Category List ##
+#########################
+
+def BuildList(Prob_Matrix):
+    List = copy.deepcopy(Prob_Matrix)
+    for key in List:
+        List[key] = mal.BuildCategoryList(List[key])
+    return List
+
+List = BuildList(Prob_Matrix)
+
+#########################
+## Build Document List ##
+#########################
+
+##Load index
+index_path = "ConfigData/allTFIDF.idx"
+index = similarities.SparseMatrixSimilarity.load(index_path)
+tfidf = similarities

@@ -54,11 +54,12 @@ for i in range(len(user['vecs'])):
     user['vecs'][i] = docs['tf_idf'][user['vecs'][i]]
 
 #Locate target docs
-index = similarities.SparseMatrixSimilarity(user['vecs'], len(docs['dictionary']))
+index = similarities.SparseMatrixSimilarity(docs['vecs'], len(docs['dictionary']))
 ##Load the index to compute
 index.save("allTFIDF.idx")
 sims = []
 ##Sum the scores together!
+print('Index Finished')
 
 for i in range(len(docs['vecs'])):
     sims.append([index[docs['vecs'][i]].max(), index[docs['vecs'][i]].argmax(), docs['file_ids'][i]])
@@ -76,3 +77,4 @@ while len(output) < C:
         output.append(sims[i])
     i += 1
 print(output)
+
