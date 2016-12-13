@@ -2,6 +2,7 @@
 ##Output Module
 ##6th, Dec, 2016
 ##Developed by Xulang
+import time
 import random
 import os, sys
 import re
@@ -10,10 +11,18 @@ sys.path.append('/Users/Taran/Desktop/NestiaRecommendation/RecommendationSys/src
 
 import copy
 import csv
-import CosSimilarityAL as cal
 from gensim import similarities, corpora, models
+import CosSimilarityAL as cal
 import gensim
 import numpy as np
+
+active_user = {}
+with open('ConfigData/ActiveUser.csv', 'r', encoding = 'utf-8') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        if not(row[0] in active_user.keys()):
+            active_user.update({row[0]: ''})
+f.close()
 
 def merge_sort(ary, column):
     if len(ary) <= 1 : return ary
@@ -69,13 +78,15 @@ def ImportData():
     with open('ConfigData/' + P_Prob_Path, 'r', encoding = 'utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
-            P_Matrix.update({row[0]: list(map(lambda x: float(x), row[1:]))})
+            if row[0] in active_user.keys():
+                P_Matrix.update({row[0]: list(map(lambda x: float(x), row[1:]))})
     f.close()
 
     with open('ConfigData/' + Q_Prob_Path, 'r', encoding = 'utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
-            Q_Matrix.update({row[0]: list(map(lambda x: float(x), row[1:]))})
+            if row[0] in active_user.keys():
+                Q_Matrix.update({row[0]: list(map(lambda x: float(x), row[1:]))})
     f.close()
 
     print('Data Import Finished')
@@ -93,17 +104,13 @@ Prob_Matrix = ImportData()
 ##(PDF, size, length)
 ##One result one time
 
-def BuildCategory(matrix):
+def BuildCategory(matrix, doc_dict):
     output = 0
-    ##lenthg: number of elements in one matrix
-    level = [0, matrix[0]]
-    for i in range(2,len(matrix)):
-        level.append(sum(matrix[:i]))
-    level.append(1)
     pro = random.random()
-    for m in range(1, len(level)):
-        if pro > level[m-1] and pro <= level[m]:
-            output = m
+    for i in range(len(matrix)):
+        pro -= matrix[i]
+        if pro <= 0:
+            output = i + 1
             break
     return output
 
@@ -142,25 +149,20 @@ index, tfidf, WordDictionary, NewsDictionary = ImportCosDictionary()
 ##import existing user history and update it by latest data
 ##still need to build two more module
 
-def GetUserHistory():
+def GetUserHistory1():
     userhistory = {}
     with open('ConfigData/Test-Reading.csv', 'r', encoding = 'utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
-            userhistory.update({row[0]: []})
-            for item in row[1:]:
-                if item != '0':
-                    userhistory[row[0]].append(item)
+            if row[0] in active_user.keys():
+                userhistory.update({row[0]: []})
+                for item in row[1:]:
+                    if item != '0':
+                        userhistory[row[0]].append(item)
     f.close()
     return userhistory
 
-userhistory = GetUserHistory()
-
-Vecs = {}
-FixType = lambda x: '0' + x if len(x) == 1 else x
-for key in NewsDictionary.keys():
-    ##id: key, type: NewsDictionary[key]
-    Vecs.update({FixType(str(NewsDictionary[key])) + '#' + str(key): 0})
+userhistory = GetUserHistory1()
 
 def getText(docs_address, dictionary):
     #Import User Dataset
@@ -244,40 +246,68 @@ with open('ConfigData/en_docs_dict.csv', 'r', encoding = 'utf-8') as f:
         en_dict[int(row[1])].append(int(row[0]))
 f.close()
 
-def emptyRandom(category, doc_dict):
+def emptyRandom(category, doc_dict, memo_dict):
     docs = doc_dict[category]
-    random_number = random.randint(0,len(docs) - 1)
+    #if len(docs) != 0:
+    random_number = random.randint(0, len(docs) - 1)
     output = docs[random_number]
+    if len(doc_dict[category]) == 1:
+        memo_dict.append([doc_dict[category][0], category])
+        del doc_dict[category]
+    else:
+        memo_dict.append([doc_dict[category][random_number], category])
+        del doc_dict[category][random_number]
+    # else:
+    #     del doc_dict[category]
+    #     ##random change a category if the previous chosen category is empty
+    #     category_new = list(doc_dict.keys())[random.randint(0, len(list(doc_dict.keys())) - 1)]
+    #     output = emptyRandom(category_new, doc_dict)
     return output
 
 
-def emptyDocPair(category):
-    output = [str(category) + '#' + str(emptyRandom(category, en_dict))+ '#rand' + '.txt', 0]
+def emptyDocPair(category, doc_dict, memo_dict):
+    output = [str(category) + '#' + str(emptyRandom(category, doc_dict, memo_dict))+ '#rand' + '.txt', 0]
     return output
+
 
 ##A function that will output the final result for one time
 ##length: the length of a given array
 ##size: the number of given arrays
-def DocsGive(doc_dict, length, size):
+def DocsGive(mega_doc_dict, Prob_Matrix, length, size):
     output = {}
-    empty = []
     for key in Prob_Matrix:
-        category = -1
         output.update({key: []})
         for n in range(size):
+            temp = []
+            #doc_dict = copy.deepcopy(mega_doc_dict)
+            memo_dict = []
+            doc_dict = mega_doc_dict
+            position = [1] * len(Prob_Matrix[key])
             for m in range(length):
+                category = BuildCategory(Prob_Matrix[key], doc_dict)
                 while not (category in doc_dict.keys()):
-                    category = BuildCategory(Prob_Matrix[key])
-                docPair = docslist[key][category - 1][len(docslist[key][category - 1]) - 1]
+                    category = BuildCategory(Prob_Matrix[key], doc_dict)
+                docc = docslist[key][category - 1]
+                docPair = docc[-position[category - 1]]
                 if docPair == 'empty':
-                    temp.append(emptyDocPair(category))
+                    temp.append(emptyDocPair(category, doc_dict, memo_dict))
+                    #temp.append(['empty'])
                 else:
-                    temp.append(docPair)
-                    del (docslist[key][category - 1][len(docslist[key][category - 1]) - 1])
-            output[key] = empty.append(output[key])
+                    temp.append([docPair[0], docPair[1]])
+                    position[category - 1] += 1
+                    ##[id,cate]
+            for item in memo_dict:
+                if not(item[1] in doc_dict.keys()):
+                    doc_dict.update({item[1]: []})
+                doc_dict[item[1]].append(item[0])
+            output[key].append([temp])
     return output
 
-output = DocsGive(en_dict, 2,2)
-print('output finished')
+print(time.strftime( '%Y-%m-%d %X', time.localtime() ))
 
+
+
+output = DocsGive(en_dict, Prob_Matrix, 35, 100)
+print('output finished')
+print(time.strftime( '%Y-%m-%d %X', time.localtime() ))
 ##Test id: 12d377e804a308f6

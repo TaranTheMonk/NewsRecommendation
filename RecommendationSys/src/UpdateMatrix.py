@@ -7,6 +7,7 @@ import UpdateAlgorithm as ual
 import csv
 import copy
 import numpy as np
+import pandas as pd
 
 ##Give path for existing matrix
 P_PATH = 'ConfigData/Test-P-Matrix.csv'
@@ -34,6 +35,19 @@ with open(P_PATH, 'r', encoding = 'utf-8') as f:
         P_Dict_Old.update({row[0]: list(map(lambda x: float(x), row[1:]))})
 f.close()
 
+def GetUserHistory2():
+    userhistory = {}
+    with open('ConfigData/Test-Reading.csv', 'r', encoding = 'utf-8') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            userhistory.update({row[0]: row[1:] })
+    f.close()
+    return userhistory
+
+#C2908B87-BE8F-41F9-A464-B904FDB1F041
+
+userhistory = GetUserHistory2()
+
 Dict_New = {}
 with open('Input/Test-Input.csv', 'r', encoding = 'utf-8') as f:
     reader = csv.reader(f)
@@ -46,6 +60,9 @@ with open('Input/Test-Input.csv', 'r', encoding = 'utf-8') as f:
 f.close()
 #del Dict_New['']
 print('Data Import Finished')
+
+active_user = pd.DataFrame(list(Dict_New.keys()))
+active_user.to_csv('ConfigData/ActiveUser.csv', index = False, header = False)
 
 def BuildP(Dict):
     #take sample to try
@@ -111,12 +128,12 @@ def getDictionary():
     f.close()
     return NewsDict
 
-def BuildQ(Dict):
+def BuildQ(Dict_1, history):
     NewsDict = getDictionary()
-    for key in Dict.keys():
-        Dict[key] = ual.QDataTransform(Dict[key], NewsDict)
+    for key in Dict_1.keys():
+        Dict_1[key], history[key] = ual.QDataTransform(Dict_1[key], history[key], NewsDict)
     print('Q-Matrix Finished')
-    return Dict
+    return Dict_1, history
 
 def UpdateQ(DictOld, DictNew, DeltaPara):
     for key in DictNew:
@@ -158,6 +175,18 @@ def OutputQ_Prob(Dict):
     print('P-Matrix write in finished')
     return
 
+def OutputReading(history):
+    output = []
+    for key in history:
+        output.append([key] + history[key])
+    with open('ConfigData/Test-Reading.csv', mode='w', newline='') as wf:
+        data = output
+        writer = csv.writer(wf, delimiter=',')
+        writer.writerows(data)
+    wf.close()
+    print('History write in finished')
+    return
+
 #####################
 # Q-Matrix Finished #
 #####################
@@ -165,7 +194,7 @@ def OutputQ_Prob(Dict):
 P_Dict_New = copy.deepcopy(Dict_New)
 Q_Dict_New = copy.deepcopy(Dict_New)
 P_Dict_New = BuildP(P_Dict_New)
-Q_Dict_New = BuildQ(Q_Dict_New)
+Q_Dict_New, userhistory = BuildQ(Q_Dict_New, userhistory)
 P_Dict_Old = UpdateP(P_Dict_Old, P_Dict_New, Delta)
 Q_Dict_Old = UpdateQ(Q_Dict_Old, Q_Dict_New, Delta)
 OutputP_Count(P_Dict_Old)
@@ -182,5 +211,6 @@ P_Dict_Prob = ProbabilityP(P_Dict_Old)
 Q_Dict_Prob = ProbabilityQ(Q_Dict_Old)
 OutputP_Prob(P_Dict_Prob)
 OutputQ_Prob(Q_Dict_Prob)
+OutputReading(userhistory)
 
 print('Probability Matrix Finished')
