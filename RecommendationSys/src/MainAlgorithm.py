@@ -22,24 +22,48 @@ def mergeProb(P_Matrix, Q_Matrix, Weight):
         Q_Matrix[key] = list(map(lambda x: x/ToT, Q_Matrix[key]))
     return Q_Matrix
 
-def BuildCategoryList(matrix):
-    list = []
+def BuildCategory(matrix):
+    output = 0
+    ##lenthg: number of elements in one matrix
     level = [0, matrix[0]]
-    for i in range(2,28):
+    for i in range(2,len(matrix)):
         level.append(sum(matrix[:i]))
     level.append(1)
-    i = 0
-    while i < 35:
-        pro = random.random()
-        for m in range(1, len(level)):
-            if pro > level[m-1] and pro <= level[m]:
-                list.append(m)
-                break
-        i = i + 1
-    return list
+    pro = random.random()
+    for m in range(1, len(level)):
+        if pro > level[m-1] and pro <= level[m]:
+            output = m
+            break
+    return output
 
-def BuildList(Prob_Matrix):
+def BuildList(Prob_Matrix, size, length):
+    ##length: number of elements in one matrix
+    ##size: number of matrix for one id
     List = copy.deepcopy(Prob_Matrix)
     for key in List:
-        List[key] = BuildCategoryList(List[key])
+        Temp = copy.deepcopy(List[key])
+        List[key] = []
+        for i in range(size):
+            List[key].append(BuildCategoryList(Temp, length))
     return List
+
+def merge_sort(ary, column):
+    if len(ary) <= 1 : return ary
+    num = int(len(ary)/2)
+    left = merge_sort(ary[:num])
+    right = merge_sort(ary[num:])
+    return merge(left , right, column)
+
+def merge(left, right, column):
+    l,r = 0,0
+    result = []
+    while l<len(left) and r<len(right) :
+        if left[l][column] > right[r][column]:
+            result.append(left[l])
+            l += 1
+        else:
+            result.append(right[r])
+            r += 1
+    result += left[l:]
+    result += right[r:]
+    return result

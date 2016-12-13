@@ -135,12 +135,25 @@ def PDataTransform(raw_input):
 
 news_pattern = re.compile('/api/v[0-9.]+/news/[0-9]+')
 
+def OneStep(matrix, element):
+    i = len(matrix) - 1
+    while i > 0:
+        matrix[i] = matrix[i-1]
+        i -= 1
+    matrix[i] = element
+    return matrix
+
+FixType = lambda x: '0' + x if len(x) == 1 else x
+
 def DetectNews(raw_input, news_dict):
-    output = []
+    output1 = []
+    output2 = [0] * 10
     for news_id in raw_input:
         if news_pattern.match(news_id[0]):
-            output.append(news_dict[int(news_id[0][len('/api/v4.5/news/'):])] - 1)
-    return output
+            news = news_id[0][len('/api/v4.5/news/'):]
+            output1.append(news_dict[int(news)] - 1)
+            output2 = OneStep(output2, FixType(str(news_dict[int(news)])) + '#' + str(news))
+    return output1, output2
 
 def NewsCount(news_category, news_dict):
     output = [0] * max(set(news_dict.values()))
@@ -149,12 +162,14 @@ def NewsCount(news_category, news_dict):
     output = list(map(lambda x: float(x), output))
     return output
 
+
+
 def QDataTransform(raw_input, newsdict):
     output1 = TimeTransform(raw_input)
     output2 = merge_sort(output1)
-    output3 = DetectNews(output2, newsdict)
+    output3, output3_2 = DetectNews(output2, newsdict)
     output4 = NewsCount(output3, newsdict)
-    return output4
+    return output4, output3_2
 
 ##Merge when computing the count of each module
 

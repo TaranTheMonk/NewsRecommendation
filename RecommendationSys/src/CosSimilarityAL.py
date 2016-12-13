@@ -1,6 +1,5 @@
 import nltk
 import re
-from nltk.corpus import stopwords
 from nltk.stem.porter import *
 from gensim import corpora,models,similarities,utils
 import jieba
@@ -20,10 +19,8 @@ def corpus_docs ( corpus ):
     # corpus is an object returned by load_corpus that represents a corpus.
     fids = [w for w in corpus.fileids() if w != '.DS_Store']
     docs1 = []
-    N = 1
-    #N is the weight for title
     for fid in fids:
-        doc_raw = corpus.raw(fid) + '' + (fid[:len(fid) - 4] * N)
+        doc_raw = corpus.raw(fid)
         doc = nltk.word_tokenize(doc_raw)
         docs1.append(doc)
     docs2 = [[w.lower() for w in doc] for doc in docs1]
@@ -37,11 +34,9 @@ def corpus_docs_cn ( corpus ):
     # corpus is an object returned by load_corpus that represents a corpus.
     fids = [w for w in corpus.fileids() if w != '.DS_Store']
     docs1 = []
-    N = 1
-    # N is the weight for title
     for fid in fids:
         doc_raw = corpus.raw(fid)
-        word_list = jieba.lcut((fid[:len(fid) - 4] * N) + doc_raw, cut_all=False)
+        word_list = jieba.lcut(doc_raw, cut_all=False)
         docs1.append(word_list)
     docs2 = [[w.lower() for w in doc] for doc in docs1]
     docs3 = [[w for w in doc if not (re.match('^[a-z]+$', w))] for doc in docs2]

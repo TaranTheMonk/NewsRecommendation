@@ -38,12 +38,13 @@ Dict_New = {}
 with open('Input/Test-Input.csv', 'r', encoding = 'utf-8') as f:
     reader = csv.reader(f)
     for row in reader:
-        if not(row[4] in Dict_New.keys()):
-            Dict_New.update({row[4]: []})
-        Dict_New[row[4]].append([row[1], row[3]])
+        if (row[5][:2] == 'en'):
+            if not(row[4] in Dict_New.keys()):
+                Dict_New.update({row[4]: []})
+            Dict_New[row[4]].append([row[1], row[3]])
         ##{'ID': [API, TIME], [API, TIME], [API, TIME]]
 f.close()
-del Dict_New['']
+#del Dict_New['']
 print('Data Import Finished')
 
 def BuildP(Dict):

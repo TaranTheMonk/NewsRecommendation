@@ -10,16 +10,19 @@ import copy
 ##Probability Headers = ['Property', 'Home', 'F&B', 'Movie', 'Promotion', 'Lottery', 'Others']
 ##Raw_Headers = ['Url', 'API', 'Method', 'Time', 'ID']
 ##Read in data
+##Only Consider EN user here
 Dict = {}
 with open('InitialData/Test-Initial.csv', 'r', encoding = 'utf-8') as f:
     reader = csv.reader(f)
     for row in reader:
-        if not(row[4] in Dict.keys()):
-            Dict.update({row[4]: []})
-        Dict[row[4]].append([row[1], row[3]])
+        if (row[5][:2] == 'en'):
+            if not(row[4] in Dict.keys()):
+                Dict.update({row[4]: []})
+            Dict[row[4]].append([row[1], row[3]])
         ##{'ID': [API, TIME], [API, TIME], [API, TIME]]
 f.close()
-del Dict['']
+if '' in Dict.keys():
+    del Dict['']
 print('Data Import Finished')
 
 def BuildP(Dict):
@@ -60,17 +63,26 @@ def getNewsDictionary():
 
 def BuildQ(Dict):
     NewsDict = getNewsDictionary()
+    Dict2 = {}
     for key in Dict.keys():
-        Dict[key] = bal.QDataTransform(Dict[key], NewsDict)
+        Dict2.update({key: ''})
+        Dict[key], Dict2[key] = bal.QDataTransform(Dict[key], NewsDict)
     print('Matrix Finished')
 
-    output = []
+    output1 = []
+    output2 = []
     print('Probability finished')
     for key in Dict:
-        output.append([key] + Dict[key])
+        output1.append([key] + Dict[key])
+        output2.append([key] + Dict2[key])
 
     with open('ConfigData/Test-Q-Matrix.csv', mode='w', newline='') as wf:
-        data = output
+        data = output1
+        writer = csv.writer(wf, delimiter=',')
+        writer.writerows(data)
+    wf.close()
+    with open('ConfigData/Test-Reading.csv', mode='w', newline='') as wf:
+        data = output2
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
     wf.close()
@@ -85,4 +97,8 @@ P_Dict = copy.deepcopy(Dict)
 Q_Dict = copy.deepcopy(Dict)
 BuildP(P_Dict)
 BuildQ(Q_Dict)
-print('Finished')
+print('Matrix Finished')
+
+##User's reading history module
+
+##Reading history finished
