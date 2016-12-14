@@ -2,10 +2,12 @@
 ##Output Module
 ##6th, Dec, 2016
 ##Developed by Xulang
+##The enter of CN
 import time
 import random
 import os, sys
 import re
+import numpy as np
 os.chdir('/Users/Taran/Desktop/NestiaRecommendation/RecommendationSys/src')
 sys.path.append('/Users/Taran/Desktop/NestiaRecommendation/RecommendationSys/src')
 
@@ -97,6 +99,31 @@ def ImportData():
 
 Prob_Matrix = ImportData()
 
+def DefineLang(ProbMatrix):
+    enList = set()
+    cnList = set()
+    with open('ConfigData/EnUser.csv', 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            enList.add(row[0])
+    f.close()
+    with open('ConfigData/CnUser.csv', 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            cnList.add(row[0])
+    f.close()
+
+    Prob_en = {}
+    Prob_cn = {}
+    for key in Prob_Matrix:
+        if key in enList:
+            Prob_en.update({key: Prob_Matrix[key]})
+        elif key in cnList:
+            Prob_cn.update({key: Prob_Matrix[key]})
+    return Prob_en, Prob_cn
+
+Prob_en, Prob_cn = DefineLang(Prob_Matrix)
+
 #########################
 ## Build Category List ##
 #########################
@@ -104,7 +131,7 @@ Prob_Matrix = ImportData()
 ##(PDF, size, length)
 ##One result one time
 
-def BuildCategory(matrix, doc_dict):
+def BuildCategory(matrix):
     output = 0
     pro = random.random()
     for i in range(len(matrix)):
@@ -134,13 +161,24 @@ def getNewsDictionary():
 ##Load Configs
 def ImportCosDictionary():
     index_path = "ConfigData/"
-    index = similarities.SparseMatrixSimilarity.load(index_path + "enTFIDF.idx")
-    tfidf = models.TfidfModel.load(index_path + "enTFIDF.mdl")
-    WordDictionary = corpora.Dictionary.load(index_path + "en.dic")
+    index = {'en': '', 'cn': ''}
+    index['en'] = similarities.SparseMatrixSimilarity.load(index_path + "enTFIDF.idx")
+    index['cn'] = similarities.SparseMatrixSimilarity.load(index_path + "cnTFIDF.idx")
+
+    tfidf = {'en': '', 'cn': ''}
+    tfidf['en'] = models.TfidfModel.load(index_path + "enTFIDF.mdl")
+    tfidf['cn'] = models.TfidfModel.load(index_path + "cnTFIDF.mdl")
+
+    WordDictionary = {'en': '', 'cn': ''}
+    WordDictionary['en'] = corpora.Dictionary.load(index_path + "en.dic")
+    WordDictionary['cn'] = corpora.Dictionary.load(index_path + "cn.dic")
+
     NewsDictionary = getNewsDictionary()
     return index, tfidf, WordDictionary, NewsDictionary
 
 index, tfidf, WordDictionary, NewsDictionary = ImportCosDictionary()
+
+##add en&cn
 
 #########################
 ## Build Document List ##
@@ -149,7 +187,30 @@ index, tfidf, WordDictionary, NewsDictionary = ImportCosDictionary()
 ##import existing user history and update it by latest data
 ##still need to build two more module
 
-def GetUserHistory1():
+en_dict = {}
+en_docs_set = set()
+cn_dict = {}
+cn_docs_set = set()
+
+with open('ConfigData/en_docs_dict.csv', 'r', encoding = 'utf-8') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        if not(int(row[1]) in en_dict.keys()):
+            en_dict.update({int(row[1]): []})
+        en_dict[int(row[1])].append(int(row[0]))
+        en_docs_set.add(row[0])
+f.close()
+
+with open('ConfigData/cn_docs_dict.csv', 'r', encoding = 'utf-8') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        if not(int(row[1]) in cn_dict.keys()):
+            cn_dict.update({int(row[1]): []})
+        cn_dict[int(row[1])].append(int(row[0]))
+        cn_docs_set.add(row[0])
+f.close()
+
+def GetUserHistory1(docs_set):
     userhistory = {}
     with open('ConfigData/Test-Reading.csv', 'r', encoding = 'utf-8') as f:
         reader = csv.reader(f)
@@ -157,13 +218,14 @@ def GetUserHistory1():
             if row[0] in active_user.keys():
                 userhistory.update({row[0]: []})
                 for item in row[1:]:
-                    if item != '0':
+                    if (item != '0') and (item in docs_set):
                         userhistory[row[0]].append(item)
     f.close()
     return userhistory
 
-userhistory = GetUserHistory1()
-
+userhistory = {'en': '' ,'cn': ''}
+userhistory['en'] = GetUserHistory1(en_docs_set)
+userhistory['cn'] = GetUserHistory1(cn_docs_set)
 def getText(docs_address, dictionary):
     #Import User Dataset
     #Specify dataset location
@@ -180,10 +242,43 @@ def getText(docs_address, dictionary):
         output.update({fileids[i]: vecs[i]})
     return output,fileids
 
-address_docs = '../src/TestDocs/en/'
-docs, fileids = getText(address_docs, WordDictionary)
+docs = {'en': '', 'cn': ''}
+fileids = {'en': '', 'cn': ''}
 
-def GiveRecommendationBySimilarity(userHistory, index, fileids):
+address_docs_en = '../src/TestDocs/en/'
+address_docs_cn = '../src/TestDocs/cn/'
+docs['en'], fileids['en'] = getText(address_docs_en, WordDictionary['en'])
+docs['cn'], fileids['cn'] = getText(address_docs_cn, WordDictionary['cn'])
+
+def getTimeDict():
+    output = {}
+    base = 2
+    with open('ConfigData/time_dict.csv', 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if row[1] == 1:
+                output.update({row[0] + '.txt': base ** (1/float(row[2]))})
+            else:
+                output.update({row[0] + '.txt': base ** (1/(float(row[2])/10))})
+    f.close()
+    return output
+
+time_dict = getTimeDict()
+
+def timeMatrix(time_dict, fileids):
+    output = copy.deepcopy(fileids)
+    for i in range(len(output)):
+        output[i] = time_dict[output[i]]
+    maxmum = max(output)
+    output = list(map(lambda x: x/maxmum, output))
+    return np.array(output)
+
+timematrix = {'en': '', 'cn': ''}
+timematrix['en'] = timeMatrix(time_dict, fileids['en'])
+timematrix['cn'] = timeMatrix(time_dict, fileids['cn'])
+
+
+def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix):
     C = 100
     ##C: output size
     outputdict = {}
@@ -191,60 +286,57 @@ def GiveRecommendationBySimilarity(userHistory, index, fileids):
     for text in userHistory:
         if text + '.txt' in docs.keys():
             score = index[tfidf[docs[text + '.txt']]]
+            maxmum = max(score)
+            score = np.array(list(map(lambda x: x/ maxmum, score)))
+            score = score * timematrix
         ##top k, k = c - 1
-            list = []
+            locallist = []
             i = 0
             while i <= C:
-                list.append((fileids[score.argmax()], score[score.argmax()]))
+                locallist.append((fileids[score.argmax()], score[score.argmax()]))
                 score[score.argmax()] = -1
                 i += 1
-            for textPair in list[1:]:
-                outputdict.update({textPair[0]: 0})
+            for textPair in locallist[1:]:
+                if not (textPair[0] in outputdict.keys()):
+                    outputdict.update({textPair[0]: 0})
                 outputdict[textPair[0]] = max(outputdict[textPair[0]], textPair[1])
     for key in outputdict:
         output.append([key, outputdict[key]])
     return output
 
+##time * similarity
+
 def putDocsInBag(docslist):
     output = []
     for i in range(28):
-        output.append(['empty'])
+        output.append([['empty', 0]])
     if docslist != []:
         for textPair in docslist:
             type = int(textPair[0][:2]) - 1
             output[type].append(textPair)
     return output
 
-def GetDocsList(userhistory):
+def GetDocsList(userhistory, timematrix):
     docslist = {}
     for key in userhistory.keys():
         if userhistory[key] == []:
             docslist.update({key: []})
             docslist[key] = putDocsInBag(docslist[key])
         else:
-            docslist.update({key: GiveRecommendationBySimilarity(userhistory[key], index, fileids)})
+            docslist.update({key: GiveRecommendationBySimilarity(userhistory[key], index, fileids, timematrix)})
             docslist[key] = putDocsInBag(docslist[key])
         for i in range(len(docslist[key])):
             if docslist[key][i][1:] != []:
                 docslist[key][i][1:] = merge_sort(docslist[key][i][1:], 1)
     return docslist
 
-docslist = GetDocsList(userhistory)
-
+docslist = {'en': '', 'cn': ''}
+docslist['en'] = GetDocsList(userhistory['en'], 'en')
+docslist['cn'] = GetDocsList(userhistory['cn'], 'cn')
 print('Similarity list finished')
 
 ##{'ID': {'0' : [1,2,3,4],
 ##        '1' : [2,3,4,5],...}
-
-en_dict = {}
-
-with open('ConfigData/en_docs_dict.csv', 'r', encoding = 'utf-8') as f:
-    reader = csv.reader(f)
-    for row in reader:
-        if not(int(row[1]) in en_dict.keys()):
-            en_dict.update({int(row[1]): []})
-        en_dict[int(row[1])].append(int(row[0]))
-f.close()
 
 def emptyRandom(category, doc_dict, memo_dict):
     docs = doc_dict[category]
@@ -273,41 +365,62 @@ def emptyDocPair(category, doc_dict, memo_dict):
 ##A function that will output the final result for one time
 ##length: the length of a given array
 ##size: the number of given arrays
-def DocsGive(mega_doc_dict, Prob_Matrix, length, size):
+
+def ChooseDoc(category, matrix, memo_dict):
+    output = 0
+    pro = random.random() * sum(x[1] for x in matrix[1:])
+    for i in range(len(matrix)):
+        pro -= matrix[i][1]
+        if pro <= 0:
+            output = [matrix[i][0], matrix[i][1]]
+            memo_dict.append((category - 1, i, matrix[i][1]))
+            matrix[i][1] = 0
+            break
+    return output
+
+def DocsGive(mega_doc_dict, Prob_Matrix, docslist, length, size):
     output = {}
     for key in Prob_Matrix:
         output.update({key: []})
         for n in range(size):
             temp = []
             #doc_dict = copy.deepcopy(mega_doc_dict)
-            memo_dict = []
+            memo_empty_dict = []
+            ##(cate,i,score)
+            memo_score_dict = []
             doc_dict = mega_doc_dict
-            position = [1] * len(Prob_Matrix[key])
+            #position = [1] * len(Prob_Matrix[key])
             for m in range(length):
-                category = BuildCategory(Prob_Matrix[key], doc_dict)
+                category = BuildCategory(Prob_Matrix[key])
                 while not (category in doc_dict.keys()):
-                    category = BuildCategory(Prob_Matrix[key], doc_dict)
+                    category = BuildCategory(Prob_Matrix[key])
                 docc = docslist[key][category - 1]
-                docPair = docc[-position[category - 1]]
-                if docPair == 'empty':
-                    temp.append(emptyDocPair(category, doc_dict, memo_dict))
+                ##
+                if sum(x[1] for x in docc) == 0:
+                    temp.append(emptyDocPair(category, doc_dict, memo_empty_dict))
                     #temp.append(['empty'])
                 else:
+                    docPair = ChooseDoc(category, docc, memo_score_dict)
                     temp.append([docPair[0], docPair[1]])
-                    position[category - 1] += 1
+                    #position[category - 1] += 1
                     ##[id,cate]
-            for item in memo_dict:
+            for item in memo_empty_dict:
                 if not(item[1] in doc_dict.keys()):
                     doc_dict.update({item[1]: []})
                 doc_dict[item[1]].append(item[0])
+            for item in memo_score_dict:
+                docslist[key][item[0]][item[1]][1] = item[2]
             output[key].append([temp])
     return output
 
 print(time.strftime( '%Y-%m-%d %X', time.localtime() ))
 
+#output = {'en': '', 'cn': ''}
+#output['en'] = DocsGive(en_dict, Prob_Matrix, docslist['en'], 35, 100)
+#output['cn'] = DocsGive(cn_dict, Prob_Matrix, docslist['cn'], 35, 100)
 
 
-output = DocsGive(en_dict, Prob_Matrix, 35, 100)
+output = DocsGive(en_dict, {'12d377e804a308f6': Prob_Matrix['12d377e804a308f6']}, docslist, 35, 100)
 print('output finished')
-print(time.strftime( '%Y-%m-%d %X', time.localtime() ))
+print(time.strftime('%Y-%m-%d %X', time.localtime()))
 ##Test id: 12d377e804a308f6

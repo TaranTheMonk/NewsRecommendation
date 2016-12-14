@@ -9,6 +9,22 @@ import copy
 import numpy as np
 import pandas as pd
 
+##Get User Lang
+enUser = set()
+cnUser = set()
+
+with open('ConfigData/EnUser.csv', 'r', encoding = 'utf-8') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        enUser.add(row[0])
+f.close()
+
+with open('ConfigData/CnUser.csv', 'r', encoding = 'utf-8') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        cnUser.add(row[0])
+f.close()
+
 ##Give path for existing matrix
 P_PATH = 'ConfigData/Test-P-Matrix.csv'
 Q_PATH = 'ConfigData/Test-Q-Matrix.csv'
@@ -52,14 +68,30 @@ Dict_New = {}
 with open('Input/Test-Input.csv', 'r', encoding = 'utf-8') as f:
     reader = csv.reader(f)
     for row in reader:
+        if row[4] in enUser:
+            enUser.remove(row[4])
+        elif row[4] in cnUser:
+            cnUser.remove(row[4])
         if (row[5][:2] == 'en'):
-            if not(row[4] in Dict_New.keys()):
-                Dict_New.update({row[4]: []})
-            Dict_New[row[4]].append([row[1], row[3]])
+            enUser.add(row[4])
+        elif (row[5][:2] == 'zh'):
+            cnUser.add(row[4])
+        if not(row[4] in Dict_New.keys()):
+            Dict_New.update({row[4]: []})
+        Dict_New[row[4]].append([row[1], row[3]])
         ##{'ID': [API, TIME], [API, TIME], [API, TIME]]
 f.close()
 #del Dict_New['']
 print('Data Import Finished')
+
+def WriteInUserLang(en_user, cn_user):
+    en_user_list = pd.DataFrame(list(en_user))
+    cn_user_list = pd.DataFrame(list(cn_user))
+    en_user_list.to_csv('ConfigData/EnUser.csv', index = False, header = False)
+    cn_user_list.to_csv('ConfigData/CnUser.csv', index = False, header = False)
+    return
+
+WriteInUserLang(enUser, cnUser)
 
 active_user = pd.DataFrame(list(Dict_New.keys()))
 active_user.to_csv('ConfigData/ActiveUser.csv', index = False, header = False)
@@ -191,6 +223,8 @@ def OutputReading(history):
 # Q-Matrix Finished #
 #####################
 
+if '' in Dict_New.keys():
+    del Dict_New['']
 P_Dict_New = copy.deepcopy(Dict_New)
 Q_Dict_New = copy.deepcopy(Dict_New)
 P_Dict_New = BuildP(P_Dict_New)

@@ -1,4 +1,23 @@
 import csv
+import time
+from datetime import datetime
+
+current = datetime.now()
+def AddZero(rawString):
+    if len(rawString) == 1:
+        output = '00' + rawString
+    elif len(rawString) == 2:
+        output = '0' + rawString
+    else:
+        output = rawString
+    return output
+
+def FixTime(rawtime):
+    date_format = "%Y-%m-%d"
+    date = datetime.strptime(rawtime, date_format)
+    delta = current - date
+    output = str(delta.days)
+    return AddZero(output)
 
 def WashRawText(Raw_Path):
     text = []
@@ -6,9 +25,12 @@ def WashRawText(Raw_Path):
         reader = csv.reader(f, delimiter = "\t")
         #headers = reader.next()
         for row in reader:
-        ##[id, title. text]
-            text.append([row[0], row[9], row[1].replace("/" ,"_") + '. ' + row[6], row[13]])
+        ##[id, type, title + body, language, time, sensitive]
+        ##[sensetive:0:no, 1:yes]
+            text.append([row[0], row[9], row[1].replace("/" ,"_") + '. ' + row[6], row[13], row[15][:10], 1])
     f.close()
+
+    del text[0]
 
     for i in range(len(text)):
         if text[i][3] == '1':
@@ -16,12 +38,14 @@ def WashRawText(Raw_Path):
         else:
             text[i].append('cn')
 
+    time_dict = {}
     en_docs_dict = {}
     cn_docs_dict = {}
     FixType = lambda x: '0' + x if len(x) == 1 else x
     for doc in text:
-        language_path = doc[4]
+        language_path = doc[-1]
         title = FixType(doc[1]) + '#' + doc[0]
+        time_dict.update({title: [doc[-2], FixTime(doc[4])]})
         ##title = type#id
         if language_path == 'en':
             en_docs_dict.update({doc[0]: doc[1]})
@@ -39,6 +63,10 @@ def WashRawText(Raw_Path):
     for key in cn_docs_dict:
         cn_dict_output.append([key, cn_docs_dict[key]])
 
+    time_dict_output = []
+    for key in time_dict:
+        time_dict_output.append([key, time_dict[key][0], time_dict[key][1]])
+
     with open('ConfigData/en_docs_dict.csv', mode='w', newline='') as wf:
         data = en_dict_output
         writer = csv.writer(wf, delimiter=',')
@@ -47,6 +75,12 @@ def WashRawText(Raw_Path):
 
     with open('ConfigData/cn_docs_dict.csv', mode='w', newline='') as wf:
         data = cn_dict_output
+        writer = csv.writer(wf, delimiter=',')
+        writer.writerows(data)
+    wf.close()
+
+    with open('ConfigData/time_dict.csv', mode='w', newline='') as wf:
+        data = time_dict_output
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
     wf.close()
