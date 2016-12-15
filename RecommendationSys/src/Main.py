@@ -18,13 +18,36 @@ import CosSimilarityAL as cal
 import gensim
 import numpy as np
 
-active_user = {}
-with open('ConfigData/ActiveUser.csv', 'r', encoding = 'utf-8') as f:
-    reader = csv.reader(f)
-    for row in reader:
-        if not(row[0] in active_user.keys()):
-            active_user.update({row[0]: ''})
-f.close()
+def getUserByLanguage():
+    enList = set()
+    cnList = set()
+    with open('ConfigData/EnUser.csv', 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            enList.add(row[0])
+    f.close()
+    with open('ConfigData/CnUser.csv', 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            cnList.add(row[0])
+    f.close()
+    return enList, cnList
+
+enList, cnList = getUserByLanguage()
+
+def getActiveUserList(UserLanguageList):
+    active_user = {}
+    with open('ConfigData/ActiveUser.csv', 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if (not (row[0] in active_user.keys())) and (row[0] in UserLanguageList):
+                active_user.update({row[0]: ''})
+    f.close()
+    return active_user
+
+active_user = {'en': '', 'cn': ''}
+active_user['en'] = getActiveUserList(enList)
+active_user['cn'] = getActiveUserList(cnList)
 
 def merge_sort(ary, column):
     if len(ary) <= 1 : return ary
@@ -70,7 +93,7 @@ def mergeProb(P_Matrix, Q_Matrix, Weight):
         Q_Matrix[key] = list(map(lambda x: x/ToT, Q_Matrix[key]))
     return Q_Matrix
 
-def ImportData():
+def ImportData(active_user):
     P_Prob_Path = 'Test-P-Prob.csv'
     Q_Prob_Path = 'Test-Q-Prob.csv'
 
@@ -80,14 +103,14 @@ def ImportData():
     with open('ConfigData/' + P_Prob_Path, 'r', encoding = 'utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
-            if row[0] in active_user.keys():
+            if row[0] in active_user:
                 P_Matrix.update({row[0]: list(map(lambda x: float(x), row[1:]))})
     f.close()
 
     with open('ConfigData/' + Q_Prob_Path, 'r', encoding = 'utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
-            if row[0] in active_user.keys():
+            if row[0] in active_user:
                 Q_Matrix.update({row[0]: list(map(lambda x: float(x), row[1:]))})
     f.close()
 
@@ -97,25 +120,13 @@ def ImportData():
     print('Probability Matrix Merged')
     return Prob_Matrix
 
-Prob_Matrix = ImportData()
+total_active_user_set = set(active_user['en'].keys()) | set(active_user['cn'].keys())
+Prob_Matrix = ImportData(total_active_user_set)
 
 def DefineLang(ProbMatrix):
-    enList = set()
-    cnList = set()
-    with open('ConfigData/EnUser.csv', 'r', encoding='utf-8') as f:
-        reader = csv.reader(f)
-        for row in reader:
-            enList.add(row[0])
-    f.close()
-    with open('ConfigData/CnUser.csv', 'r', encoding='utf-8') as f:
-        reader = csv.reader(f)
-        for row in reader:
-            cnList.add(row[0])
-    f.close()
-
     Prob_en = {}
     Prob_cn = {}
-    for key in Prob_Matrix:
+    for key in ProbMatrix:
         if key in enList:
             Prob_en.update({key: Prob_Matrix[key]})
         elif key in cnList:
@@ -210,22 +221,24 @@ with open('ConfigData/cn_docs_dict.csv', 'r', encoding = 'utf-8') as f:
         cn_docs_set.add(row[0])
 f.close()
 
-def GetUserHistory1(docs_set):
+def GetUserHistory1(docs_set, active_user):
     userhistory = {}
     with open('ConfigData/Test-Reading.csv', 'r', encoding = 'utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
-            if row[0] in active_user.keys():
+            if row[0] in active_user:
                 userhistory.update({row[0]: []})
                 for item in row[1:]:
-                    if (item != '0') and (item in docs_set):
+                    if (item != '0') and (item[3:] in docs_set):
                         userhistory[row[0]].append(item)
     f.close()
     return userhistory
 
+#'12d377e804a308f6'
 userhistory = {'en': '' ,'cn': ''}
-userhistory['en'] = GetUserHistory1(en_docs_set)
-userhistory['cn'] = GetUserHistory1(cn_docs_set)
+userhistory['en'] = GetUserHistory1(en_docs_set, set(active_user['en'].keys()))
+userhistory['cn'] = GetUserHistory1(cn_docs_set, set(active_user['cn'].keys()))
+
 def getText(docs_address, dictionary):
     #Import User Dataset
     #Specify dataset location
@@ -236,7 +249,7 @@ def getText(docs_address, dictionary):
     ##stemmering and cleanning for reducing dimensions of vector space
     ##Use docs dictionary as the dictionary
     vecs = cal.docs_vecs(docs, dictionary)
-    fileids = corpus.fileids()
+    fileids = [x for x in corpus.fileids() if x != '.DS_Store']
     output = {}
     for i in range(len(vecs)):
         output.update({fileids[i]: vecs[i]})
@@ -278,7 +291,7 @@ timematrix['en'] = timeMatrix(time_dict, fileids['en'])
 timematrix['cn'] = timeMatrix(time_dict, fileids['cn'])
 
 
-def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix):
+def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs, tfidf):
     C = 100
     ##C: output size
     outputdict = {}
@@ -316,14 +329,15 @@ def putDocsInBag(docslist):
             output[type].append(textPair)
     return output
 
-def GetDocsList(userhistory, timematrix):
+def GetDocsList(userhistory, langFlag):
     docslist = {}
     for key in userhistory.keys():
         if userhistory[key] == []:
             docslist.update({key: []})
             docslist[key] = putDocsInBag(docslist[key])
         else:
-            docslist.update({key: GiveRecommendationBySimilarity(userhistory[key], index, fileids, timematrix)})
+            docslist.update({key: GiveRecommendationBySimilarity(
+                userhistory[key], index[langFlag], fileids[langFlag], timematrix[langFlag], docs[langFlag], tfidf[langFlag])})
             docslist[key] = putDocsInBag(docslist[key])
         for i in range(len(docslist[key])):
             if docslist[key][i][1:] != []:
@@ -378,6 +392,9 @@ def ChooseDoc(category, matrix, memo_dict):
             break
     return output
 
+print('All systems go')
+print(time.strftime('%Y-%m-%d %X', time.localtime()))
+
 def DocsGive(mega_doc_dict, Prob_Matrix, docslist, length, size):
     output = {}
     for key in Prob_Matrix:
@@ -413,14 +430,13 @@ def DocsGive(mega_doc_dict, Prob_Matrix, docslist, length, size):
             output[key].append([temp])
     return output
 
-print(time.strftime( '%Y-%m-%d %X', time.localtime() ))
-
 #output = {'en': '', 'cn': ''}
-#output['en'] = DocsGive(en_dict, Prob_Matrix, docslist['en'], 35, 100)
-#output['cn'] = DocsGive(cn_dict, Prob_Matrix, docslist['cn'], 35, 100)
+#output['en'] = DocsGive(en_dict, Prob_en, docslist['en'], 35, 100)
+#output['cn'] = DocsGive(cn_dict, Prob_cn, docslist['cn'], 35, 100)
 
-
-output = DocsGive(en_dict, {'12d377e804a308f6': Prob_Matrix['12d377e804a308f6']}, docslist, 35, 100)
+output_cn = DocsGive(cn_dict, {'3A3D33EF-0C28-4430-A700-4ADFAA6327B7': Prob_cn['3A3D33EF-0C28-4430-A700-4ADFAA6327B7']}, docslist['cn'], 35, 100)
+output_en = DocsGive(en_dict, {'12d377e804a308f6': Prob_en['12d377e804a308f6']}, docslist['en'], 35, 100)
 print('output finished')
 print(time.strftime('%Y-%m-%d %X', time.localtime()))
-##Test id: 12d377e804a308f6
+##Test id en: 12d377e804a308f6
+##Test id cn: 3A3D33EF-0C28-4430-A700-4ADFAA6327B7
