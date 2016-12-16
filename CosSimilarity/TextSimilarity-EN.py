@@ -53,7 +53,7 @@ for i in range(len(user['vecs'])):
     user['vecs'][i] = docs['tf_idf'][user['vecs'][i]]
 
 #Locate target docs
-index = similarities.SparseMatrixSimilarity(docs['vecs'], len(docs['dictionary']))
+index = similarities.SparseMatrixSimilarity(user['vecs'], len(docs['dictionary']))
 ##Load the index to compute
 index.save("allTFIDF.idx")
 sims = []

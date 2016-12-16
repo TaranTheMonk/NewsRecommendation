@@ -9,7 +9,7 @@ import jieba.posseg as pseg
 #useless_punct = re.compile('nbsp|a-zA-Z]{1,1}|\\\|\s|\?|\？|\。|\.|\(|\)|\（|\）|\/|\>|\<|\:|\：|\&|\;|\#|\_|\!|\,')
 
 stop_list = nltk.corpus.stopwords.words('english')
-stop_list = stop_list #+ ['IMG', 'nbsp', '我们', '你们', '他们'， '']
+stop_list = stop_list + ['IMG', '&nbsp', '我们', '你们', '他们', '它', '它们', '我', '你']
 
 def load_corpus( dir ):
     # dir is a directory with plain text files to load.
@@ -41,11 +41,11 @@ def corpus_docs_cn ( corpus ):
     # N is the weight for title
     for fid in fids:
         doc_raw = corpus.raw(fid)
-        word_list = jieba.lcut((fid[:len(fid) - 4] * N) + doc_raw, cut_all=False)
+        word_list = jieba.lcut((fid[:len(fid) - 4] * N) + doc_raw, cut_all=True)
         docs1.append(word_list)
     docs2 = [[w.lower() for w in doc] for doc in docs1]
     docs3 = [[w for w in doc if not (re.match('^[a-z]+$', w))] for doc in docs2]
-    docs4 = [[w for w in doc if not(len(w) == 1)] for doc in docs3]
+    docs4 = [[w for w in doc if not(len(w) <= 1)] for doc in docs3]
     docs5 = [[w for w in doc if w not in stop_list] for doc in docs4]
     return docs5
 

@@ -35,8 +35,10 @@ def WashRawText(Raw_Path):
     for i in range(len(text)):
         if text[i][3] == '1':
             text[i].append('en')
-        else:
+        elif text[i][3] == '2':
             text[i].append('cn')
+        elif text[i][3] == '-1':
+            text[i].append('en&cn')
 
     time_dict = {}
     en_docs_dict = {}
@@ -49,11 +51,25 @@ def WashRawText(Raw_Path):
         ##title = type#id
         if language_path == 'en':
             en_docs_dict.update({doc[0]: doc[1]})
-        else:
+            with open('TestDocs/' + language_path + '/' + title + '.txt', 'w', encoding='utf-8') as t:
+                t.write(doc[2])
+            t.close()
+
+        elif language_path == 'cn':
             cn_docs_dict.update({doc[0]: doc[1]})
-        with open('TestDocs/' + language_path + '/' + title + '.txt', 'w', encoding = 'utf-8') as t:
-            t.write(doc[2])
-        t.close()
+            with open('TestDocs/' + language_path + '/' + title + '.txt', 'w', encoding='utf-8') as t:
+                t.write(doc[2])
+            t.close()
+
+        elif language_path == 'en&cn':
+            en_docs_dict.update({doc[0]: doc[1]})
+            cn_docs_dict.update({doc[0]: doc[1]})
+            with open('TestDocs/' + 'en' + '/' + title + '.txt', 'w', encoding='utf-8') as t:
+                t.write(doc[2])
+            t.close()
+            with open('TestDocs/' + 'cn' + '/' + title + '.txt', 'w', encoding='utf-8') as t:
+                t.write(doc[2])
+            t.close()
 
     en_dict_output = []
     for key in en_docs_dict:
