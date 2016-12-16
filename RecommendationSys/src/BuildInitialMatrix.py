@@ -6,24 +6,44 @@
 import csv
 import BuildInitialAlgorithm as bal
 import copy
+import pandas as pd
 
 ##Probability Headers = ['Property', 'Home', 'F&B', 'Movie', 'Promotion', 'Lottery', 'Others']
 ##Raw_Headers = ['Url', 'API', 'Method', 'Time', 'ID']
 ##Read in data
 ##Only Consider EN user here
-Dict = {}
-with open('InitialData/Test-Initial.csv', 'r', encoding = 'utf-8') as f:
-    reader = csv.reader(f)
-    for row in reader:
-        if (row[5][:2] == 'en'):
+def ImportInitial():
+    Dict = {}
+    en_user = set()
+    cn_user = set()
+    with open('InitialData/Test-Initial.csv', 'r', encoding = 'utf-8') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if (row[5][:2] == 'en'):
+                en_user.add(row[4])
+            elif (row[5][:2] == 'zh'):
+                cn_user.add(row[4])
             if not(row[4] in Dict.keys()):
                 Dict.update({row[4]: []})
             Dict[row[4]].append([row[1], row[3]])
         ##{'ID': [API, TIME], [API, TIME], [API, TIME]]
-f.close()
-if '' in Dict.keys():
-    del Dict['']
-print('Data Import Finished')
+    f.close()
+
+    if '' in Dict.keys():
+        del Dict['']
+    print('Data Import Finished')
+    return Dict, en_user, cn_user
+
+Dict, en_user, cn_user = ImportInitial()
+
+def WriteInUserLang():
+    en_user_list = pd.DataFrame(list(en_user))
+    cn_user_list = pd.DataFrame(list(cn_user))
+    en_user_list.to_csv('ConfigData/EnUser.csv', index = False, header = False)
+    cn_user_list.to_csv('ConfigData/CnUser.csv', index = False, header = False)
+    return
+
+WriteInUserLang()
 
 def BuildP(Dict):
     #take sample to try
