@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 def move_log_file():
 	datetime
-	os.system('mv -f ./nestia_logs/data-%s.csv logs_last_hour.csv' % (datetime.utcnow() - timedelta(hours=1)).strftime("%Y-%m-%d-%H"))
+	os.system('mv -f ./nestia_logs/data-%s.csv ./nestia_logs/logs_last_hour.csv' % (datetime.utcnow() - timedelta(hours=1)).strftime("%Y-%m-%d-%H"))
 
 def main():
 	parser = argparse.ArgumentParser(description='Recommendation calculation')
