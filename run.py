@@ -19,4 +19,6 @@ def main():
 	news_list = read_all_news(session)
 	save_all_news(news_list, "./RecommendationSys/data/news_all.json")
 
+
+
 main()
