@@ -6,7 +6,7 @@
 import CosSimilarityAL as cal
 import gensim
 from gensim import similarities
-import TextTransFormer as ttf
+import JsonTextTransFormer as ttf
 import csv
 import pandas as pd
 
@@ -14,9 +14,6 @@ import pandas as pd
 ##Compute similarity and get output
 
 ##Wash text before refresh config
-
-Raw_Path = '../src/TestDocs/news.tsv'
-ttf.WashRawText(Raw_Path)
 
 def getData_en(docs_address):
     #Import User Dataset
@@ -43,17 +40,12 @@ def Computing_en(docs):
 
 def enSavingConfig_en(index, docs):
     ##Save index, tf-idf model and dictionary
-    index.save("ConfigData/enTFIDF.idx")
-    docs['tf_idf'].save("ConfigData/enTFIDF.mdl")
-    docs['dictionary'].save("ConfigData/en.dic")
-    pd.DataFrame(docs['file_ids']).to_csv('ConfigData/enTextIDs.csv' ,header = False, index = False)
+    index.save("../Data/ConfigData/enTFIDF.idx")
+    docs['tf_idf'].save("../Data/ConfigData/enTFIDF.mdl")
+    docs['dictionary'].save("../Data/ConfigData/en.dic")
+    pd.DataFrame(docs['file_ids']).to_csv('../Data/ConfigData/enTextIDs.csv' ,header = False, index = False)
     print('Saving Finished')
     return
-
-address_docs_en = '../src/TestDocs/en/'
-docs_en = getData_en(address_docs_en)
-index_en = Computing_en(docs_en)
-enSavingConfig_en(index_en, docs_en)
 
 def getData_cn(docs_address):
     #Import User Dataset
@@ -80,14 +72,23 @@ def Computing_cn(docs):
 
 def enSavingConfig_cn(index, docs):
     ##Save index, tf-idf model and dictionary
-    index.save("ConfigData/cnTFIDF.idx")
-    docs['tf_idf'].save("ConfigData/cnTFIDF.mdl")
-    docs['dictionary'].save("ConfigData/cn.dic")
-    pd.DataFrame(docs['file_ids']).to_csv('ConfigData/cnTextIDs.csv' ,header = False, index = False)
+    index.save("../Data/ConfigData/cnTFIDF.idx")
+    docs['tf_idf'].save("../Data/ConfigData/cnTFIDF.mdl")
+    docs['dictionary'].save("../Data/ConfigData/cn.dic")
+    pd.DataFrame(docs['file_ids']).to_csv('../Data/ConfigData/cnTextIDs.csv' ,header = False, index = False)
     print('Saving Finished')
     return
 
-address_docs_cn = '../src/TestDocs/cn/'
-docs_cn = getData_cn(address_docs_cn)
-index_cn = Computing_cn(docs_cn)
-enSavingConfig_cn(index_cn, docs_cn)
+def main():
+    Raw_Path = '../Data/TestDocs/news_all.json'
+    ttf.WashRawText(Raw_Path)
+
+    address_docs_en = '../Data/TestDocs/en/'
+    docs_en = getData_en(address_docs_en)
+    index_en = Computing_en(docs_en)
+    enSavingConfig_en(index_en, docs_en)
+
+    address_docs_cn = '../Data/TestDocs/cn/'
+    docs_cn = getData_cn(address_docs_cn)
+    index_cn = Computing_cn(docs_cn)
+    enSavingConfig_cn(index_cn, docs_cn)

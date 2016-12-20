@@ -17,7 +17,7 @@ def load_corpus( dir ):
 
 def corpus_docs ( corpus ):
     # corpus is an object returned by load_corpus that represents a corpus.
-    fids = [w for w in corpus.fileids() if w != '.DS_Store']
+    fids = [w for w in corpus.fileids() if (w != '.DS_Store' and w != '.keep')]
     docs1 = []
     for fid in fids:
         doc_raw = corpus.raw(fid)
@@ -32,7 +32,7 @@ def corpus_docs_cn ( corpus ):
     ##CN Stop words list!
     ##Remove useless symbols
     # corpus is an object returned by load_corpus that represents a corpus.
-    fids = [w for w in corpus.fileids() if w != '.DS_Store']
+    fids = [w for w in corpus.fileids() if w (w != '.DS_Store' and w != '.keep')]
     docs1 = []
     for fid in fids:
         doc_raw = corpus.raw(fid)

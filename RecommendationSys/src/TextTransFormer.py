@@ -40,36 +40,46 @@ def WashRawText(Raw_Path):
         elif text[i][3] == '-1':
             text[i].append('en&cn')
 
+    all_news_dict = {}
     time_dict = {}
     en_docs_dict = {}
     cn_docs_dict = {}
     FixType = lambda x: '0' + x if len(x) == 1 else x
     for doc in text:
+
         language_path = doc[-1]
         title = FixType(doc[1]) + '#' + doc[0]
         time_dict.update({title: [doc[-2], FixTime(doc[4])]})
+        ##doc[-2]: time sensitivity, FixTime(doc[4]): time distance
         ##title = type#id
+
+        all_news_dict.update({doc[0]: doc[1]})
+
         if language_path == 'en':
             en_docs_dict.update({doc[0]: doc[1]})
-            with open('TestDocs/' + language_path + '/' + title + '.txt', 'w', encoding='utf-8') as t:
+            with open('../Data/TestDocs/' + language_path + '/' + title + '.txt', 'w', encoding='utf-8') as t:
                 t.write(doc[2])
             t.close()
 
         elif language_path == 'cn':
             cn_docs_dict.update({doc[0]: doc[1]})
-            with open('TestDocs/' + language_path + '/' + title + '.txt', 'w', encoding='utf-8') as t:
+            with open('../Data/TestDocs/' + language_path + '/' + title + '.txt', 'w', encoding='utf-8') as t:
                 t.write(doc[2])
             t.close()
 
         elif language_path == 'en&cn':
             en_docs_dict.update({doc[0]: doc[1]})
             cn_docs_dict.update({doc[0]: doc[1]})
-            with open('TestDocs/' + 'en' + '/' + title + '.txt', 'w', encoding='utf-8') as t:
+            with open('../Data/TestDocs/' + 'en' + '/' + title + '.txt', 'w', encoding='utf-8') as t:
                 t.write(doc[2])
             t.close()
-            with open('TestDocs/' + 'cn' + '/' + title + '.txt', 'w', encoding='utf-8') as t:
+            with open('../Data/TestDocs/' + 'cn' + '/' + title + '.txt', 'w', encoding='utf-8') as t:
                 t.write(doc[2])
             t.close()
+
+    all_news_output = []
+    for key in all_news_dict:
+        all_news_output.append([key, all_news_dict[key]])
 
     en_dict_output = []
     for key in en_docs_dict:
@@ -83,19 +93,25 @@ def WashRawText(Raw_Path):
     for key in time_dict:
         time_dict_output.append([key, time_dict[key][0], time_dict[key][1]])
 
-    with open('ConfigData/en_docs_dict.csv', mode='w', newline='') as wf:
+    with open('../Data/ConfigData/NewsDictionary.csv', mode='w', newline='') as wf:
+        data = all_news_output
+        writer = csv.writer(wf, delimiter=',')
+        writer.writerows(data)
+    wf.close()
+
+    with open('../Data/ConfigData/en_docs_dict.csv', mode='w', newline='') as wf:
         data = en_dict_output
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
     wf.close()
 
-    with open('ConfigData/cn_docs_dict.csv', mode='w', newline='') as wf:
+    with open('../Data/ConfigData/cn_docs_dict.csv', mode='w', newline='') as wf:
         data = cn_dict_output
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
     wf.close()
 
-    with open('ConfigData/time_dict.csv', mode='w', newline='') as wf:
+    with open('../Data/ConfigData/time_dict.csv', mode='w', newline='') as wf:
         data = time_dict_output
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
