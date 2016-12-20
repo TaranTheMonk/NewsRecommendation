@@ -2,6 +2,7 @@ import csv
 import time
 from datetime import datetime
 import json
+import os
 
 current = datetime.now()
 def AddZero(rawString):
