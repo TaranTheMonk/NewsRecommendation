@@ -18,7 +18,7 @@ def run_timer_task(session, moment):
     while True:
         if datetime.utcnow().strftime("%M:%S") == moment:
             run(session)
-        print datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        print(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
         time.sleep(1)
 
 

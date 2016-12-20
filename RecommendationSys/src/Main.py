@@ -467,5 +467,3 @@ def SaveOutput():
         for res in en_result:
             wf.write(res+"\t" + json.dumps(en_result[res], separators = (',', ':')) + '\n')
     wf.close()
-
-SaveOutput()
