@@ -3,11 +3,10 @@
 ##7th, Dec, 2016
 ##Developed by Xulang
 
-import CosSimilarityAL as cal
+from . import CosSimilarityAL as cal
 import gensim
 from gensim import similarities
-import JsonTextTransFormer as ttf
-import csv
+from . import JsonTextTransFormer as ttf
 import pandas as pd
 
 ##Build tf to tf-idf
@@ -92,3 +91,5 @@ def main():
     docs_cn = getData_cn(address_docs_cn)
     index_cn = Computing_cn(docs_cn)
     enSavingConfig_cn(index_cn, docs_cn)
+
+main()
