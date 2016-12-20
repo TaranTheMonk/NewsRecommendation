@@ -131,7 +131,7 @@ def PDataTransform(raw_input):
     return output5
 ##input: {'ID': [1, 2, 3, 4, 5, 6]]
 
-news_pattern = re.compile('/api/v[0-9.]+/news/[0-9]+')
+news_pattern = re.compile('^/api/v[0-9.]+/news/[0-9]+$')
 
 def DetectNews(raw_input, news_dict):
     output = []
@@ -162,7 +162,9 @@ def DetectNews(raw_input, news_dict, history):
     output2 = history
     for news_id in raw_input:
         if news_pattern.match(news_id[0]):
-            news = news_id[0][len('/api/v4.5/news/'):]
+            news = int(news_id[0].split('/')[-1])
+            if not news in news_dict:
+                continue
             output1.append(news_dict[int(news)] - 1)
             output2 = OneStep(output2, FixType(str(news_dict[int(news)])) + '#' + str(news))
     return output1, output2
