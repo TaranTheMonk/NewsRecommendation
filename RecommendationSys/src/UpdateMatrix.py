@@ -94,6 +94,8 @@ def getDictionary():
 def BuildQ(Dict_1, history):
     NewsDict = getDictionary()
     for key in Dict_1.keys():
+        if not key in history:
+            history[key] = [0]*10
         Dict_1[key], history[key] = ual.QDataTransform(Dict_1[key], history[key], NewsDict)
     print('Q-Matrix Finished')
     return Dict_1, history
