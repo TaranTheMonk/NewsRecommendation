@@ -91,5 +91,3 @@ def main():
     docs_cn = getData_cn(address_docs_cn)
     index_cn = Computing_cn(docs_cn)
     enSavingConfig_cn(index_cn, docs_cn)
-
-main()

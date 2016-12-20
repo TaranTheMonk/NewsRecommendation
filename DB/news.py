@@ -39,9 +39,9 @@ def save_all_news(news_list, file_path):
     file.close()
 
 
-def news_test():
-    db_engine = create_engine(
-        'mysql://HSDBADMIN:NestiaHSPWD@hsdb.cd29ypfepkmi.ap-southeast-1.rds.amazonaws.com:3306/news', echo=True)
-    session = sessionmaker(bind=db_engine)()
-    news_list = read_all_news(session)
-    save_all_news(news_list, "./news_all.json")
+# def news_test():
+#     db_engine = create_engine(
+#         'mysql://HSDBADMIN:NestiaHSPWD@hsdb.cd29ypfepkmi.ap-southeast-1.rds.amazonaws.com:3306/news', echo=True)
+#     session = sessionmaker(bind=db_engine)()
+#     news_list = read_all_news(session)
+#     save_all_news(news_list, "./news_all.json")

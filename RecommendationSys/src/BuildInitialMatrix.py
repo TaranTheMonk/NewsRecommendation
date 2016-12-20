@@ -120,4 +120,3 @@ def main():
 ##User's reading history module
 
 ##Reading history finished
-main()

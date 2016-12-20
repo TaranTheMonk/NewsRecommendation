@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 # import RecommendationSys.src.Main
 
 def move_log_file():
-    os.system('mv -f ./nestia_logs/data-%s.csv ./RecommendationSys/Input/input.csv' % (
+    os.system('mv -f ~/.recsys/nestia_logs/data-%s.csv ~/.recsys/Data/Input/input.csv' % (
     datetime.utcnow() - timedelta(hours=1)).strftime("%Y-%m-%d-%H"))
 
 
@@ -45,12 +45,14 @@ def read_from_config():
 def run(session):
     # saving all news data
     news_list = read_all_news(session)
-    save_all_news(news_list, "./RecommendationSys/Data/news_all.json")
+    os.system('mkdir -p ~/.recsys/Data/TestDocs')
+    save_all_news(news_list, "~/.recsys/Data/TestDocs/news_all.json")
 
     # SaveOutput()
 
     move_log_file()
-    insert_rec_from_file(session, './RecommendationSys/Data/Output/device_result.tsv')
+    os.system('mkdir -p ~/.recsys/Data/Output')
+    insert_rec_from_file(session, '~/.recsys/Data/Output/device_result.tsv')
 
 
 read_from_config()
