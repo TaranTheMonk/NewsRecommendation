@@ -150,8 +150,10 @@ def DetectNews(raw_input, news_dict):
     output2 = [0] * 10
     for news_id in raw_input:
         if news_pattern.match(news_id[0]):
-            news = news_id[0][len('/api/v4.5/news/'):]
-            output1.append(news_dict[int(news)] - 1)
+            news = int(news_id[0][len('/api/v4.5/news/'):])
+            if not news in news_dict:
+                continue
+            output1.append(news_dict[news] - 1)
             output2 = OneStep(output2, FixType(str(news_dict[int(news)])) + '#' + str(news))
     return output1, output2
 
