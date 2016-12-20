@@ -51,23 +51,23 @@ def WashRawText(Raw_Path):
 
         if language_path == 'en':
             en_docs_dict.update({doc['id']: doc['type']})
-            with open('~/.recsys/Data/TestDocs/' + language_path + '/' + title + '.txt', 'w', encoding='utf-8') as t:
+            with open(os.path.expanduser('~/.recsys/Data/TestDocs/' + language_path + '/' + title + '.txt'), 'w', encoding='utf-8') as t:
                 t.write(doc['title'] + '.'+ doc['content'])
             t.close()
 
         elif language_path == 'cn':
             cn_docs_dict.update({doc['id']: doc['type']})
-            with open('~/.recsys/Data/TestDocs/' + language_path + '/' + title + '.txt', 'w', encoding='utf-8') as t:
+            with open(os.path.expanduser('~/.recsys/Data/TestDocs/' + language_path + '/' + title + '.txt'), 'w', encoding='utf-8') as t:
                 t.write(doc['title'] + '.' + doc['content'])
             t.close()
 
         elif language_path == 'en&cn':
             en_docs_dict.update({doc['id']: doc['type']})
             cn_docs_dict.update({doc['id']: doc['type']})
-            with open('~/.recsys/Data/TestDocs/' + 'en' + '/' + title + '.txt', 'w', encoding='utf-8') as t:
+            with open(os.path.expanduser('~/.recsys/Data/TestDocs/' + 'en' + '/' + title + '.txt'), 'w', encoding='utf-8') as t:
                 t.write(doc['title'] + '.' + doc['content'])
             t.close()
-            with open('~/.recsys/Data/TestDocs/' + 'cn' + '/' + title + '.txt', 'w', encoding='utf-8') as t:
+            with open(os.path.expanduser('~/.recsys/Data/TestDocs/' + 'cn' + '/' + title + '.txt'), 'w', encoding='utf-8') as t:
                 t.write(doc['title'] + '.' + doc['content'])
             t.close()
 
@@ -87,25 +87,25 @@ def WashRawText(Raw_Path):
     for key in time_dict:
         time_dict_output.append([key, time_dict[key][0], time_dict[key][1]])
 
-    with open('~/.recsys/Data/ConfigData/NewsDictionary.csv', mode='w', newline='') as wf:
+    with open(os.path.expanduser('~/.recsys/Data/ConfigData/NewsDictionary.csv'), mode='w', newline='') as wf:
         data = all_news_output
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
     wf.close()
 
-    with open('~/.recsys/Data/ConfigData/en_docs_dict.csv', mode='w', newline='') as wf:
+    with open(os.path.expanduser('~/.recsys/Data/ConfigData/en_docs_dict.csv'), mode='w', newline='') as wf:
         data = en_dict_output
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
     wf.close()
 
-    with open('~/.recsys/Data/ConfigData/cn_docs_dict.csv', mode='w', newline='') as wf:
+    with open(os.path.expanduser('~/.recsys/Data/ConfigData/cn_docs_dict.csv'), mode='w', newline='') as wf:
         data = cn_dict_output
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
     wf.close()
 
-    with open('~/.recsys/Data/ConfigData/time_dict.csv', mode='w', newline='') as wf:
+    with open(os.path.expanduser('~/.recsys/Data/ConfigData/time_dict.csv'), mode='w', newline='') as wf:
         data = time_dict_output
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)

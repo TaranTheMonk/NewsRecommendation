@@ -46,10 +46,10 @@ def Computing_en(docs):
 
 def enSavingConfig_en(index, docs):
     ##Save index, tf-idf model and dictionary
-    index.save("~/.recsys/Data/ConfigData/enTFIDF.idx")
-    docs['tf_idf'].save("~/.recsys/Data/ConfigData/enTFIDF.mdl")
-    docs['dictionary'].save("~/.recsys/Data/ConfigData/en.dic")
-    pd.DataFrame(docs['file_ids']).to_csv('~/.recsys/Data/ConfigData/enTextIDs.csv' ,header = False, index = False)
+    index.save(os.path.expanduser("~/.recsys/Data/ConfigData/enTFIDF.idx"))
+    docs['tf_idf'].save(os.path.expanduser("~/.recsys/Data/ConfigData/enTFIDF.mdl"))
+    docs['dictionary'].save(os.path.expanduser("~/.recsys/Data/ConfigData/en.dic"))
+    pd.DataFrame(docs['file_ids']).to_csv(os.path.expanduser('~/.recsys/Data/ConfigData/enTextIDs.csv') ,header = False, index = False)
     print('Saving Finished')
     return
 
@@ -78,23 +78,23 @@ def Computing_cn(docs):
 
 def enSavingConfig_cn(index, docs):
     ##Save index, tf-idf model and dictionary
-    index.save("~/.recsys/Data/ConfigData/cnTFIDF.idx")
-    docs['tf_idf'].save("~/.recsys/Data/ConfigData/cnTFIDF.mdl")
-    docs['dictionary'].save("~/.recsys/Data/ConfigData/cn.dic")
-    pd.DataFrame(docs['file_ids']).to_csv('~/.recsys/Data/ConfigData/cnTextIDs.csv' ,header = False, index = False)
+    index.save(os.path.expanduser("~/.recsys/Data/ConfigData/cnTFIDF.idx"))
+    docs['tf_idf'].save(os.path.expanduser("~/.recsys/Data/ConfigData/cnTFIDF.mdl"))
+    docs['dictionary'].save(os.path.expanduser("~/.recsys/Data/ConfigData/cn.dic"))
+    pd.DataFrame(docs['file_ids']).to_csv(os.path.expanduser('~/.recsys/Data/ConfigData/cnTextIDs.csv') ,header = False, index = False)
     print('Saving Finished')
     return
 
 def main():
-    Raw_Path = '~/.recsys/Data/TestDocs/news_all.json'
+    Raw_Path = os.path.expanduser('~/.recsys/Data/TestDocs/news_all.json')
     ttf.WashRawText(Raw_Path)
 
-    address_docs_en = '~/.recsys/Data/TestDocs/en/'
+    address_docs_en = os.path.expanduser('~/.recsys/Data/TestDocs/en/')
     docs_en = getData_en(address_docs_en)
     index_en = Computing_en(docs_en)
     enSavingConfig_en(index_en, docs_en)
 
-    address_docs_cn = '~/.recsys/Data/TestDocs/cn/'
+    address_docs_cn = os.path.expanduser('~/.recsys/Data/TestDocs/cn/')
     docs_cn = getData_cn(address_docs_cn)
     index_cn = Computing_cn(docs_cn)
     enSavingConfig_cn(index_cn, docs_cn)

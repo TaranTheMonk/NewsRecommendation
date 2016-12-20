@@ -7,6 +7,7 @@ import csv
 from . import BuildInitialAlgorithm as bal
 import copy
 import pandas as pd
+import os
 
 os.system('mkdir -p ~/.recsys/Data/ConfigData')
 
@@ -18,7 +19,7 @@ def ImportInitial():
     Dict = {}
     en_user = set()
     cn_user = set()
-    with open('~/.recsys/Data/InitialData/Initial.csv', 'r', encoding = 'utf-8') as f:
+    with open(os.path.expanduser('~/.recsys/Data/InitialData/Initial.csv'), 'r', encoding = 'utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             if (row[5][:2] == 'en'):
@@ -39,8 +40,8 @@ def ImportInitial():
 def WriteInUserLang(en_user, cn_user):
     en_user_list = pd.DataFrame(list(en_user))
     cn_user_list = pd.DataFrame(list(cn_user))
-    en_user_list.to_csv('~/.recsys/Data/ConfigData/EnUser.csv', index = False, header = False)
-    cn_user_list.to_csv('~/.recsys/Data/ConfigData/CnUser.csv', index = False, header = False)
+    en_user_list.to_csv(os.path.expanduser('~/.recsys/Data/ConfigData/EnUser.csv'), index = False, header = False)
+    cn_user_list.to_csv(os.path.expanduser('~/.recsys/Data/ConfigData/CnUser.csv'), index = False, header = False)
     return
 
 def BuildP(Dict):
@@ -54,7 +55,7 @@ def BuildP(Dict):
     for key in Dict:
         output.append([key] + Dict[key])
 
-    with open('~/.recsys/Data/ConfigData/Test-P-Matrix.csv', mode='w', newline='') as wf:
+    with open(os.path.expanduser('~/.recsys/Data/ConfigData/Test-P-Matrix.csv'), mode='w', newline='') as wf:
         data = output
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
@@ -68,7 +69,7 @@ def BuildP(Dict):
 
 def getNewsDictionary():
     ##Import News Dictionary
-    DictionaryPath = '~/.recsys/Data/ConfigData/'
+    DictionaryPath = os.path.expanduser('~/.recsys/Data/ConfigData/')
     DictionaryName = 'NewsDictionary.csv'
     NewsDict = {}
     with open(DictionaryPath + DictionaryName, 'r', encoding = 'utf-8') as f:
@@ -93,12 +94,12 @@ def BuildQ(Dict):
         output1.append([key] + Dict[key])
         output2.append([key] + Dict2[key])
 
-    with open('~/.recsys/Data/ConfigData/Test-Q-Matrix.csv', mode='w', newline='') as wf:
+    with open(os.path.expanduser('~/.recsys/Data/ConfigData/Test-Q-Matrix.csv'), mode='w', newline='') as wf:
         data = output1
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
     wf.close()
-    with open('~/.recsys/Data/ConfigData/Test-Reading.csv', mode='w', newline='') as wf:
+    with open(os.path.expanduser('~/.recsys/Data/ConfigData/Test-Reading.csv'), mode='w', newline='') as wf:
         data = output2
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)

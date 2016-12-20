@@ -46,12 +46,11 @@ def run(session):
     # saving all news data
     news_list = read_all_news(session)
     os.system('mkdir -p ~/.recsys/Data/TestDocs')
-    save_all_news(news_list, "~/.recsys/Data/TestDocs/news_all.json")
+    save_all_news(news_list, os.path.expanduser("~/.recsys/Data/TestDocs/news_all.json"))
 
     # SaveOutput()
 
     move_log_file()
-    os.system('mkdir -p ~/.recsys/Data/Output')
     insert_rec_from_file(session, '~/.recsys/Data/Output/device_result.tsv')
 
 
