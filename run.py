@@ -51,7 +51,7 @@ def run(session):
     result_saver.SaveOutput()
 
     move_log_file()
-    insert_rec_from_file(session, '~/.recsys/Data/Output/device_result.tsv')
+    insert_rec_from_file(session, os.path.expanduser('~/.recsys/Data/Output/device_result.tsv'))
 
 
 read_from_config()
