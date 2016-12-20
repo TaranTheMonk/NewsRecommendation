@@ -11,7 +11,7 @@ import RecommendationSys.src.Main as result_saver
 
 def move_log_file():
 	os.system('mkdir -p ~/.recsys/Data/Input')
-	os.system('mv -f ~/.recsys/nestia_logs/data-%s.csv ~/.recsys/Data/Input/input.csv' % (datetime.utcnow() - timedelta(hours=1)).strftime("%Y-%m-%d-%H"))
+	os.system('mv -f ~/.recsys/nestia_logs/data-%s.csv ~/.recsys/Data/Input/input.csv' % (datetime.utcnow() - timedelta(hours=2)).strftime("%Y-%m-%d-%H"))
 
 
 def run_timer_task(session, moment):
