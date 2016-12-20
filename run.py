@@ -4,7 +4,6 @@ import argparse
 import os
 import time
 from datetime import datetime, timedelta
-import RecommendationSys.src.Main as result_saver
 
 # from RecommendationSys.src.Main import SaveOutput
 
@@ -47,7 +46,8 @@ def run(session):
     news_list = read_all_news(session)
     os.system('mkdir -p ~/.recsys/Data/TestDocs')
     save_all_news(news_list, os.path.expanduser("~/.recsys/Data/TestDocs/news_all.json"))
-
+    
+    import RecommendationSys.src.Main as result_saver
     result_saver.SaveOutput()
 
     move_log_file()
