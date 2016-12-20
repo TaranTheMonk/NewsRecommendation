@@ -133,7 +133,7 @@ def PDataTransform(raw_input):
     return output5
 ##input: {'ID': [1, 2, 3, 4, 5, 6]]
 
-news_pattern = re.compile('/api/v[0-9.]+/news/[0-9]+')
+news_pattern = re.compile('^/api/v[0-9.]+/news/[0-9]+$')
 
 def OneStep(matrix, element):
     i = len(matrix) - 1
