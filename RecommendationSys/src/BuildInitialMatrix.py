@@ -4,7 +4,7 @@
 ##Developed by Xulang
 
 import csv
-import BuildInitialAlgorithm as bal
+from . import BuildInitialAlgorithm as bal
 import copy
 import pandas as pd
 
@@ -120,3 +120,4 @@ def main():
 ##User's reading history module
 
 ##Reading history finished
+main()

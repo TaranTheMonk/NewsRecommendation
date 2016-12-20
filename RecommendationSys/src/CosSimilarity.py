@@ -6,7 +6,7 @@
 import CosSimilarityAL as cal
 import gensim
 from gensim import similarities
-import JsonTextTransFormer as ttf
+from . import JsonTextTransFormer as ttf
 import csv
 import pandas as pd
 
@@ -92,3 +92,5 @@ def main():
     docs_cn = getData_cn(address_docs_cn)
     index_cn = Computing_cn(docs_cn)
     enSavingConfig_cn(index_cn, docs_cn)
+
+main()

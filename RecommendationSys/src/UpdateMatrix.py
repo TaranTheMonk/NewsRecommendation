@@ -3,7 +3,7 @@
 ##6th, Dec, 2016
 ##Developed by Xulang
 
-import UpdateAlgorithm as ual
+from . import UpdateAlgorithm as ual
 import csv
 import copy
 import numpy as np
@@ -247,3 +247,5 @@ def main():
 #####################
 # Updating Finished #
 #####################
+
+main()

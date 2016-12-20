@@ -12,7 +12,7 @@ import json
 import copy
 import csv
 from gensim import similarities, corpora, models
-import CosSimilarityAL as cal
+from . import CosSimilarityAL as cal
 import gensim
 import numpy as np
 
@@ -120,6 +120,7 @@ def DefineLang(ProbMatrix, enList, cnList):
             Prob_en.update({key: ProbMatrix[key]})
         elif key in cnList:
             Prob_cn.update({key: ProbMatrix[key]})
+    ##Add default prob
     return Prob_en, Prob_cn
 
 #########################
@@ -205,7 +206,7 @@ def getText(docs_address, dictionary):
     ##stemmering and cleanning for reducing dimensions of vector space
     ##Use docs dictionary as the dictionary
     vecs = cal.docs_vecs(docs, dictionary)
-    fileids = [x for x in corpus.fileids() if x != '.DS_Store']
+    fileids = [x for x in corpus.fileids() if (x != '.DS_Store' and x != '.keep')]
     output = {}
     for i in range(len(vecs)):
         output.update({fileids[i]: vecs[i]})
@@ -434,12 +435,18 @@ def main():
     print('All systems go')
     print(time.strftime('%Y-%m-%d %X', time.localtime()))
 
-#output = {'en': '', 'cn': ''}
-    output_cn = DocsGive(en_dict, Prob_en, docslist['en'], 35, 100)
-    output_en = DocsGive(cn_dict, Prob_cn, docslist['cn'], 35, 100)
 
-    #output_cn = DocsGive(cn_dict, {'3A3D33EF-0C28-4430-A700-4ADFAA6327B7': Prob_cn['3A3D33EF-0C28-4430-A700-4ADFAA6327B7']}, docslist['cn'], 35, 100)
-    #output_en = DocsGive(en_dict, {'12d377e804a308f6': Prob_en['12d377e804a308f6']}, docslist['en'], 35, 100)
+    ##ADD DEFAULT!!!!!
+    Prob_cn.update({'chinese_default': list(map(lambda x: x / 28, [1] * 28))})
+    Prob_en.update({'english_default': list(map(lambda x: x / 28, [1] * 28))})
+    docslist['cn'].update({'chinese_default': [[['empty', 0]]]*28})
+    docslist['en'].update({'english_default': [[['empty', 0]]]*28})
+#output = {'en': '', 'cn': ''}
+    #output_cn = DocsGive(en_dict, Prob_en, docslist['en'], 35, 100)
+    #output_en = DocsGive(cn_dict, Prob_cn, docslist['cn'], 35, 100)
+
+    output_cn = DocsGive(cn_dict, {'chinese_default': Prob_cn['chinese_default']}, docslist['cn'], 35, 100)
+    output_en = DocsGive(en_dict, {'english_default': Prob_en['english_default']}, docslist['en'], 35, 100)
     print('output finished')
     print(time.strftime('%Y-%m-%d %X', time.localtime()))
 ##Test id en: 12d377e804a308f6
@@ -460,3 +467,5 @@ def SaveOutput():
         for res in en_result:
             wf.write(res+"\t" + json.dumps(en_result[res], separators = (',', ':')) + '\n')
     wf.close()
+
+SaveOutput()

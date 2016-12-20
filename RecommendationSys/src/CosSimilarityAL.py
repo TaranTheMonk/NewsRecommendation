@@ -1,7 +1,6 @@
 import nltk
-import re
 from nltk.stem.porter import *
-from gensim import corpora,models,similarities,utils
+from gensim import models
 import jieba
 import jieba.posseg as pseg
 
