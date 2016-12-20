@@ -3,10 +3,11 @@ from DB.recommended_list import *
 import argparse
 import os
 from datetime import datetime, timedelta
+# from RecommendationSys.src.Main import SaveOutput
+import RecommendationSys.src.Main
 
 def move_log_file():
-	datetime
-	os.system('mv -f ./nestia_logs/data-%s.csv ./nestia_logs/logs_last_hour.csv' % (datetime.utcnow() - timedelta(hours=1)).strftime("%Y-%m-%d-%H"))
+	os.system('mv -f ./nestia_logs/data-%s.csv ./RecommendationSys/Input/input.csv' % (datetime.utcnow() - timedelta(hours=1)).strftime("%Y-%m-%d-%H"))
 
 def main():
 	parser = argparse.ArgumentParser(description='Recommendation calculation')
@@ -24,9 +25,11 @@ def main():
 
 	#saving all news data
 	news_list = read_all_news(session)
-	save_all_news(news_list, "./RecommendationSys/data/news_all.json")
+	save_all_news(news_list, "./RecommendationSys/Data/news_all.json")
+
+	SaveOutput()
 
 	move_log_file()
-	# insert_rec_from_file(session, './RecommendationSys/data/device_result.tsv')
+	insert_rec_from_file(session, './RecommendationSys/Data/Output/device_result.tsv')
 
 main()
