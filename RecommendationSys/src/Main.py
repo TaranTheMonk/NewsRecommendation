@@ -202,7 +202,8 @@ def getText(docs_address, dictionary):
     ##stemmering and cleanning for reducing dimensions of vector space
     ##Use docs dictionary as the dictionary
     vecs = cal.docs_vecs(docs, dictionary)
-    fileids = [x for x in corpus.fileids() if (x != '.DS_Store' and x != '.keep')]
+
+    fileids = [x for x in corpus.fileids() if (x != '.DS_Store' and x !='.keep')]
     output = {}
     for i in range(len(vecs)):
         output.update({fileids[i]: vecs[i]})
