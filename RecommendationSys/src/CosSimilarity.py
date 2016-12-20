@@ -3,11 +3,10 @@
 ##7th, Dec, 2016
 ##Developed by Xulang
 
-import CosSimilarityAL as cal
+from . import CosSimilarityAL as cal
 import gensim
 from gensim import similarities
 from . import JsonTextTransFormer as ttf
-import csv
 import pandas as pd
 
 ##Build tf to tf-idf

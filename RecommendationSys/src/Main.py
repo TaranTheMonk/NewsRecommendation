@@ -5,15 +5,11 @@
 ##The enter of CN
 import time
 import random
-import os, sys
-import re
-import numpy as np
 import json
 import copy
 import csv
 from gensim import similarities, corpora, models
 from . import CosSimilarityAL as cal
-import gensim
 import numpy as np
 
 def getUserByLanguage():
