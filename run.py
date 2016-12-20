@@ -3,8 +3,8 @@ from DB.recommended_list import *
 import argparse
 import os
 import time
+import sys
 from datetime import datetime, timedelta
-
 # from RecommendationSys.src.Main import SaveOutput
 
 
@@ -18,6 +18,7 @@ def run_timer_task(session, moment):
         if datetime.utcnow().strftime("%M:%S") == moment:
             run(session)
         print(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
+        sys.stdout.flush()
         time.sleep(1)
 
 
