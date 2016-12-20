@@ -150,7 +150,7 @@ def DetectNews(raw_input, news_dict):
     output2 = [0] * 10
     for news_id in raw_input:
         if news_pattern.match(news_id[0]):
-            news = int(news_id[0][len('/api/v4.5/news/'):])
+            news = int(news_id[0].split('/')[-1])
             if not news in news_dict:
                 continue
             output1.append(news_dict[news] - 1)
