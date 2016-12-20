@@ -8,10 +8,13 @@ import csv
 import copy
 import numpy as np
 import pandas as pd
+import os
+
+os.system('mkdir -p ~/.recsys/Data/TestDocs/ConfigData')
 
 def GetUserHistory2():
     userhistory = {}
-    with open('../Data/ConfigData/Test-Reading.csv', 'r', encoding = 'utf-8') as f:
+    with open('~/.recsys/Data/ConfigData/Test-Reading.csv', 'r', encoding = 'utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             userhistory.update({row[0]: row[1:] })
@@ -21,8 +24,8 @@ def GetUserHistory2():
 def WriteInUserLang(en_user, cn_user):
     en_user_list = pd.DataFrame(list(en_user))
     cn_user_list = pd.DataFrame(list(cn_user))
-    en_user_list.to_csv('../Data/ConfigData/EnUser.csv', index = False, header = False)
-    cn_user_list.to_csv('../Data/ConfigData/CnUser.csv', index = False, header = False)
+    en_user_list.to_csv('~/.recsys/Data/ConfigData/EnUser.csv', index = False, header = False)
+    cn_user_list.to_csv('~/.recsys/Data/ConfigData/CnUser.csv', index = False, header = False)
     return
 
 def BuildP(Dict):
@@ -46,7 +49,7 @@ def OutputP_Count(Dict):
     for key in Dict:
         output.append([key] + Dict[key])
 
-    with open('../Data/ConfigData/Test-P-Matrix.csv', mode='w', newline='') as wf:
+    with open('~/.recsys/Data/ConfigData/Test-P-Matrix.csv', mode='w', newline='') as wf:
         data = output
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
@@ -64,7 +67,7 @@ def OutputP_Prob(Dict):
     for key in Dict:
         output.append([key] + Dict[key])
 
-    with open('../Data/ConfigData/Test-P-Prob.csv', mode='w', newline='') as wf:
+    with open('~/.recsys/Data/ConfigData/Test-P-Prob.csv', mode='w', newline='') as wf:
         data = output
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
@@ -78,7 +81,7 @@ def OutputP_Prob(Dict):
 
 def getDictionary():
     ##Import News Dictionary
-    DictionaryPath = '../Data/ConfigData/'
+    DictionaryPath = '~/.recsys/Data/ConfigData/'
     DictionaryName = 'NewsDictionary.csv'
     NewsDict = {}
     with open(DictionaryPath + DictionaryName, 'r', encoding = 'utf-8') as f:
@@ -109,7 +112,7 @@ def OutputQ_Count(Dict):
     for key in Dict:
         output.append([key] + Dict[key])
 
-    with open('../Data/ConfigData/Test-Q-Matrix.csv', mode='w', newline='') as wf:
+    with open('~/.recsys/Data/ConfigData/Test-Q-Matrix.csv', mode='w', newline='') as wf:
         data = output
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
@@ -127,7 +130,7 @@ def OutputQ_Prob(Dict):
     for key in Dict:
         output.append([key] + Dict[key])
 
-    with open('../Data/ConfigData/Test-Q-Prob.csv', mode='w', newline='') as wf:
+    with open('~/.recsys/Data/ConfigData/Test-Q-Prob.csv', mode='w', newline='') as wf:
         data = output
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
@@ -139,7 +142,7 @@ def OutputReading(history):
     output = []
     for key in history:
         output.append([key] + history[key])
-    with open('../Data/ConfigData/Test-Reading.csv', mode='w', newline='') as wf:
+    with open('~/.recsys/Data/ConfigData/Test-Reading.csv', mode='w', newline='') as wf:
         data = output
         writer = csv.writer(wf, delimiter=',')
         writer.writerows(data)
@@ -156,21 +159,21 @@ def main():
     enUser = set()
     cnUser = set()
 
-    with open('../Data/ConfigData/EnUser.csv', 'r', encoding='utf-8') as f:
+    with open('~/.recsys/Data/ConfigData/EnUser.csv', 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             enUser.add(row[0])
     f.close()
 
-    with open('../Data/ConfigData/CnUser.csv', 'r', encoding='utf-8') as f:
+    with open('~/.recsys/Data/ConfigData/CnUser.csv', 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             cnUser.add(row[0])
     f.close()
 
     ##Give path for existing matrix
-    P_PATH = '../Data/ConfigData/Test-P-Matrix.csv'
-    Q_PATH = '../Data/ConfigData/Test-Q-Matrix.csv'
+    P_PATH = '~/.recsys/Data/ConfigData/Test-P-Matrix.csv'
+    Q_PATH = '~/.recsys/Data/ConfigData/Test-Q-Matrix.csv'
 
     ##After (ResidualValue_Period) updates, current data will have (ResidualValue)% Value
     ResidualValue = 0.5
@@ -199,7 +202,7 @@ def main():
     userhistory = GetUserHistory2()
 
     Dict_New = {}
-    with open('../Data/Input/input.csv', 'r', encoding='utf-8') as f:
+    with open('~/.recsys/Data/Input/input.csv', 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             if row[4] in enUser:
@@ -220,7 +223,7 @@ def main():
     WriteInUserLang(enUser, cnUser)
 
     active_user = pd.DataFrame(list(Dict_New.keys()))
-    active_user.to_csv('../Data/ConfigData/ActiveUser.csv', index=False, header=False)
+    active_user.to_csv('~/.recsys/Data/ConfigData/ActiveUser.csv', index=False, header=False)
 
     if '' in Dict_New.keys():
         del Dict_New['']

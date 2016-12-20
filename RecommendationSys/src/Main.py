@@ -11,16 +11,19 @@ import csv
 from gensim import similarities, corpora, models
 from . import CosSimilarityAL as cal
 import numpy as np
+import os
+
+os.system('mkdir -p ~/.recsys/Data/TestDocs/Output')
 
 def getUserByLanguage():
     enList = set()
     cnList = set()
-    with open('../Data/ConfigData/EnUser.csv', 'r', encoding='utf-8') as f:
+    with open('~/.recsys/Data/ConfigData/EnUser.csv', 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             enList.add(row[0])
     f.close()
-    with open('../Data/ConfigData/CnUser.csv', 'r', encoding='utf-8') as f:
+    with open('~/.recsys/Data/ConfigData/CnUser.csv', 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             cnList.add(row[0])
@@ -29,7 +32,7 @@ def getUserByLanguage():
 
 def getActiveUserList(UserLanguageList):
     active_user = {}
-    with open('../Data/ConfigData/ActiveUser.csv', 'r', encoding='utf-8') as f:
+    with open('~/.recsys/Data/ConfigData/ActiveUser.csv', 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             if (not (row[0] in active_user.keys())) and (row[0] in UserLanguageList):
@@ -88,14 +91,14 @@ def ImportData(active_user):
     P_Matrix = {}
     Q_Matrix = {}
 
-    with open('../Data/ConfigData/' + P_Prob_Path, 'r', encoding = 'utf-8') as f:
+    with open('~/.recsys/Data/ConfigData/' + P_Prob_Path, 'r', encoding = 'utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             if row[0] in active_user:
                 P_Matrix.update({row[0]: list(map(lambda x: float(x), row[1:]))})
     f.close()
 
-    with open('../Data/ConfigData/' + Q_Prob_Path, 'r', encoding = 'utf-8') as f:
+    with open('~/.recsys/Data/ConfigData/' + Q_Prob_Path, 'r', encoding = 'utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             if row[0] in active_user:
@@ -142,7 +145,7 @@ def BuildCategory(matrix):
 
 def getNewsDictionary():
     ##Import News Dictionary
-    DictionaryPath = '../Data/ConfigData/'
+    DictionaryPath = '~/.recsys/Data/ConfigData/'
     DictionaryName = 'NewsDictionary.csv'
     NewsDict = {}
     with open(DictionaryPath + DictionaryName, 'r', encoding = 'utf-8') as f:
@@ -154,7 +157,7 @@ def getNewsDictionary():
 
 ##Load Configs
 def ImportCosDictionary():
-    index_path = "../Data/ConfigData/"
+    index_path = "~/.recsys/Data/ConfigData/"
     index = {'en': '', 'cn': ''}
     index['en'] = similarities.SparseMatrixSimilarity.load(index_path + "enTFIDF.idx")
     index['cn'] = similarities.SparseMatrixSimilarity.load(index_path + "cnTFIDF.idx")
@@ -181,7 +184,7 @@ def ImportCosDictionary():
 
 def GetUserHistory1(docs_set, active_user):
     userhistory = {}
-    with open('../Data/ConfigData/Test-Reading.csv', 'r', encoding = 'utf-8') as f:
+    with open('~/.recsys/Data/ConfigData/Test-Reading.csv', 'r', encoding = 'utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             if row[0] in active_user:
@@ -212,7 +215,7 @@ def getText(docs_address, dictionary):
 def getTimeDict():
     output = {}
     base = 2
-    with open('../Data/ConfigData/time_dict.csv', 'r', encoding='utf-8') as f:
+    with open('~/.recsys/Data/ConfigData/time_dict.csv', 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             if row[1] == 1:
@@ -387,7 +390,7 @@ def main():
     cn_dict = {}
     cn_docs_set = set()
 
-    with open('../Data/ConfigData/en_docs_dict.csv', 'r', encoding='utf-8') as f:
+    with open('~/.recsys/Data/ConfigData/en_docs_dict.csv', 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             if not (int(row[1]) in en_dict.keys()):
@@ -396,7 +399,7 @@ def main():
             en_docs_set.add(row[0])
     f.close()
 
-    with open('../Data/ConfigData/cn_docs_dict.csv', 'r', encoding='utf-8') as f:
+    with open('~/.recsys/Data/ConfigData/cn_docs_dict.csv', 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             if not (int(row[1]) in cn_dict.keys()):
@@ -413,8 +416,8 @@ def main():
     docs = {'en': '', 'cn': ''}
     fileids = {'en': '', 'cn': ''}
 
-    address_docs_en = '../Data/TestDocs/en/'
-    address_docs_cn = '../Data/TestDocs/cn/'
+    address_docs_en = '~/.recsys/Data/TestDocs/en/'
+    address_docs_cn = '~/.recsys/Data/TestDocs/cn/'
     docs['en'], fileids['en'] = getText(address_docs_en, WordDictionary['en'])
     docs['cn'], fileids['cn'] = getText(address_docs_cn, WordDictionary['cn'])
 
@@ -458,7 +461,7 @@ def SaveOutput():
     # for key in en_result:
     #     output.append([key, en_result[key]])
 
-    with open('../Data/Output/device_result.tsv', mode = 'w') as wf:
+    with open('~/.recsys/Data/Output/device_result.tsv', mode = 'w') as wf:
         for res in cn_result:
             wf.write(res+"\t" + json.dumps(cn_result[res], separators = (',', ':')) + '\n')
         for res in en_result:

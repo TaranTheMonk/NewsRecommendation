@@ -8,11 +8,18 @@ import gensim
 from gensim import similarities
 from . import JsonTextTransFormer as ttf
 import pandas as pd
+import os
 
 ##Build tf to tf-idf
 ##Compute similarity and get output
 
 ##Wash text before refresh config
+
+os.system('mkdir -p ~/.recsys/Data/ConfigData')
+os.system('mkdir -p ~/.recsys/Data/TestDocs')
+os.system('mkdir -p ~/.recsys/Data/TestDocs/cn')
+os.system('mkdir -p ~/.recsys/Data/TestDocs/en')
+
 
 def getData_en(docs_address):
     #Import User Dataset
@@ -39,10 +46,10 @@ def Computing_en(docs):
 
 def enSavingConfig_en(index, docs):
     ##Save index, tf-idf model and dictionary
-    index.save("../Data/ConfigData/enTFIDF.idx")
-    docs['tf_idf'].save("../Data/ConfigData/enTFIDF.mdl")
-    docs['dictionary'].save("../Data/ConfigData/en.dic")
-    pd.DataFrame(docs['file_ids']).to_csv('../Data/ConfigData/enTextIDs.csv' ,header = False, index = False)
+    index.save("~/.recsys/Data/ConfigData/enTFIDF.idx")
+    docs['tf_idf'].save("~/.recsys/Data/ConfigData/enTFIDF.mdl")
+    docs['dictionary'].save("~/.recsys/Data/ConfigData/en.dic")
+    pd.DataFrame(docs['file_ids']).to_csv('~/.recsys/Data/ConfigData/enTextIDs.csv' ,header = False, index = False)
     print('Saving Finished')
     return
 
@@ -71,23 +78,23 @@ def Computing_cn(docs):
 
 def enSavingConfig_cn(index, docs):
     ##Save index, tf-idf model and dictionary
-    index.save("../Data/ConfigData/cnTFIDF.idx")
-    docs['tf_idf'].save("../Data/ConfigData/cnTFIDF.mdl")
-    docs['dictionary'].save("../Data/ConfigData/cn.dic")
-    pd.DataFrame(docs['file_ids']).to_csv('../Data/ConfigData/cnTextIDs.csv' ,header = False, index = False)
+    index.save("~/.recsys/Data/ConfigData/cnTFIDF.idx")
+    docs['tf_idf'].save("~/.recsys/Data/ConfigData/cnTFIDF.mdl")
+    docs['dictionary'].save("~/.recsys/Data/ConfigData/cn.dic")
+    pd.DataFrame(docs['file_ids']).to_csv('~/.recsys/Data/ConfigData/cnTextIDs.csv' ,header = False, index = False)
     print('Saving Finished')
     return
 
 def main():
-    Raw_Path = '../Data/TestDocs/news_all.json'
+    Raw_Path = '~/.recsys/Data/TestDocs/news_all.json'
     ttf.WashRawText(Raw_Path)
 
-    address_docs_en = '../Data/TestDocs/en/'
+    address_docs_en = '~/.recsys/Data/TestDocs/en/'
     docs_en = getData_en(address_docs_en)
     index_en = Computing_en(docs_en)
     enSavingConfig_en(index_en, docs_en)
 
-    address_docs_cn = '../Data/TestDocs/cn/'
+    address_docs_cn = '~/.recsys/Data/TestDocs/cn/'
     docs_cn = getData_cn(address_docs_cn)
     index_cn = Computing_cn(docs_cn)
     enSavingConfig_cn(index_cn, docs_cn)
