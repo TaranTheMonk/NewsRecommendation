@@ -8,6 +8,8 @@ from . import BuildInitialAlgorithm as bal
 import copy
 import pandas as pd
 
+os.system('mkdir -p ~/.recsys/Data/TestDocs/ConfigData')
+
 ##Probability Headers = ['Property', 'Home', 'F&B', 'Movie', 'Promotion', 'Lottery', 'Others']
 ##Raw_Headers = ['Url', 'API', 'Method', 'Time', 'ID']
 ##Read in data

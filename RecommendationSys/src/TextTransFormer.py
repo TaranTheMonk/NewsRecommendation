@@ -1,6 +1,11 @@
 import csv
 import time
 from datetime import datetime
+import os
+
+os.system('mkdir -p ~/.recsys/Data/TestDocs')
+os.system('mkdir -p ~/.recsys/Data/TestDocs/cn')
+os.system('mkdir -p ~/.recsys/Data/TestDocs/en')
 
 current = datetime.now()
 def AddZero(rawString):
@@ -45,6 +50,7 @@ def WashRawText(Raw_Path):
     en_docs_dict = {}
     cn_docs_dict = {}
     FixType = lambda x: '0' + x if len(x) == 1 else x
+
     for doc in text:
 
         language_path = doc[-1]

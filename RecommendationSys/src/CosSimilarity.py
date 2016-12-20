@@ -8,11 +8,18 @@ import gensim
 from gensim import similarities
 from . import JsonTextTransFormer as ttf
 import pandas as pd
+import os
 
 ##Build tf to tf-idf
 ##Compute similarity and get output
 
 ##Wash text before refresh config
+
+os.system('mkdir -p ~/.recsys/Data/ConfigData')
+os.system('mkdir -p ~/.recsys/Data/TestDocs')
+os.system('mkdir -p ~/.recsys/Data/TestDocs/cn')
+os.system('mkdir -p ~/.recsys/Data/TestDocs/en')
+
 
 def getData_en(docs_address):
     #Import User Dataset

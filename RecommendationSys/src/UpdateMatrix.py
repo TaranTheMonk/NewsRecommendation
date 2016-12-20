@@ -8,6 +8,9 @@ import csv
 import copy
 import numpy as np
 import pandas as pd
+import os
+
+os.system('mkdir -p ~/.recsys/Data/TestDocs/ConfigData')
 
 def GetUserHistory2():
     userhistory = {}
