@@ -13,7 +13,7 @@ from . import CosSimilarityAL as cal
 import numpy as np
 import os
 
-os.system('mkdir -p ~/.recsys/Data/TestDocs/Output')
+os.system('mkdir -p ~/.recsys/Data/Output')
 
 def getUserByLanguage():
     enList = set()
