@@ -16,6 +16,8 @@ def run_timer_task(session, moment):
     while True:
         if datetime.utcnow().strftime("%M:%S") == moment:
             run(session)
+        else: 
+            run_random_only(session)
         print(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
         sys.stdout.flush()
         time.sleep(1)
@@ -56,5 +58,14 @@ def run(session):
 
     insert_rec_from_file(session, os.path.expanduser('~/.recsys/Data/Output/device_result.tsv'))
 
+def run_random_only(session): 
+    device_ids = get_expired_device_ids(session)
+    os.system('mkdir -p ~/.recsys/Data/ConfigData')
+    with open(os.path.expanduser('~/.recsys/Data/ConfigData/ActiveUser.csv'), 'w') as file:
+        for device_id in device_ids:
+            file.write(device_id[0] + '\n')
+    file.close()
+    import RecommendationSys.src.Main as result_saver
+    result_saver.SaveOutput()
 
 read_from_config()
