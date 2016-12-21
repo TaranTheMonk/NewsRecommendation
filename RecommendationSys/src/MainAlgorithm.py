@@ -44,7 +44,7 @@ def BuildList(Prob_Matrix, size, length):
         Temp = copy.deepcopy(List[key])
         List[key] = []
         for i in range(size):
-            List[key].append(BuildCategoryList(Temp, length))
+            List[key].append(BuildCategory(Temp, length))
     return List
 
 def merge_sort(ary, column):

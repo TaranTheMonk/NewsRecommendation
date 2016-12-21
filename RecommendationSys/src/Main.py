@@ -9,7 +9,7 @@ import json
 import copy
 import csv
 from gensim import similarities, corpora, models
-from . import CosSimilarityAL as cal
+from src import CosSimilarityAL as cal
 import numpy as np
 import os
 
@@ -212,29 +212,33 @@ def getText(docs_address, dictionary):
         output.update({fileids[i]: vecs[i]})
     return output,fileids
 
-def getTimeDict():
+def getPropertyDict():
     output = {}
+    ban_list = set()
     base = 2
-    with open(os.path.expanduser('~/.recsys/Data/ConfigData/time_dict.csv'), 'r', encoding='utf-8') as f:
+    with open(os.path.expanduser('~/.recsys/Data/ConfigData/property_dict.csv'), 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
-            if row[1] == 1:
-                output.update({row[0] + '.txt': base ** (1/float(row[2]))})
-            else:
-                output.update({row[0] + '.txt': base ** (1/(float(row[2])/10))})
+            ##[title, time bound, distance day, status(only 1 is ok), reveal mode(1 or 0 is ok, 2 is banned)]
+            if int(row[1]) == 1:
+                output.update({row[0] + '.txt': TimeScoreFunctionRelevant(float(row[2]))})
+            elif int(row[1]) == 0:
+                output.update({row[0] + '.txt': TimeScoreFunctionIrrelevant(float(row[2]))})
+            if (int(row[3]) != 1) or (int(row[4])== 2):
+                ban_list.add(row[0])
     f.close()
-    return output
+    return output, ban_list
 
-def timeMatrix(time_dict, fileids):
+def timeMatrix(property_dict, fileids):
     output = copy.deepcopy(fileids)
     for i in range(len(output)):
-        output[i] = time_dict[output[i]]
-    maxmum = max(output)
-    output = list(map(lambda x: x/maxmum, output))
+        output[i] = property_dict[output[i]]
+    #maxmum = max(output)
+    #output = list(map(lambda x: x/maxmum, output))
     return np.array(output)
 
 
-def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs, tfidf):
+def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs, tfidf, ban_list):
     C = 100
     ##C: output size
     outputdict = {}
@@ -243,8 +247,12 @@ def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs
         if text + '.txt' in docs.keys():
             score = index[tfidf[docs[text + '.txt']]]
             maxmum = max(score)
-            score = np.array(list(map(lambda x: x/ maxmum, score)))
+            minmum = min(score)
+            score = np.array(list(map(lambda x: ((x - minmum) + (maxmum - minmum) * 0.01/ (maxmum - minmum))
+                                                * ((TimeScoreFunctionRelevant(0) + TimeScoreFunctionIrrelevant(0))/2), score)))
             score = score * timematrix
+            maxmum = max(score)
+            score = np.array(list(map(lambda x: x/ maxmum, score)))
         ##top k, k = c - 1
             locallist = []
             i = 0
@@ -257,7 +265,9 @@ def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs
                     outputdict.update({textPair[0]: 0})
                 outputdict[textPair[0]] = max(outputdict[textPair[0]], textPair[1])
     for key in outputdict:
-        output.append([key, outputdict[key]])
+        if not (key.replace('.txt','') in ban_list):
+            output.append([key, outputdict[key]])
+    ##delete docs by criterion
     return output
 
 ##time * similarity
@@ -268,11 +278,14 @@ def putDocsInBag(docslist):
         output.append([['empty', 0]])
     if docslist != []:
         for textPair in docslist:
-            type = int(textPair[0][:2]) - 1
+            type = int(textPair[0].split('#')[0]) - 1
+            if not(int(textPair[0].split('#')[0]) in range(1, 29)):
+                textPair[1] = 0
+            ##type out of 1-28, score = 0
             output[type].append(textPair)
     return output
 
-def GetDocsList(userhistory, langFlag, index, fileids, timematrix, docs, tfidf):
+def GetDocsList(userhistory, langFlag, index, fileids, timematrix, docs, tfidf, ban_list):
     docslist = {}
     for key in userhistory.keys():
         if userhistory[key] == []:
@@ -280,7 +293,7 @@ def GetDocsList(userhistory, langFlag, index, fileids, timematrix, docs, tfidf):
             docslist[key] = putDocsInBag(docslist[key])
         else:
             docslist.update({key: GiveRecommendationBySimilarity(
-                userhistory[key], index[langFlag], fileids[langFlag], timematrix[langFlag], docs[langFlag], tfidf[langFlag])})
+                userhistory[key], index[langFlag], fileids[langFlag], timematrix[langFlag], docs[langFlag], tfidf[langFlag], ban_list)})
             docslist[key] = putDocsInBag(docslist[key])
         for i in range(len(docslist[key])):
             if docslist[key][i][1:] != []:
@@ -290,27 +303,32 @@ def GetDocsList(userhistory, langFlag, index, fileids, timematrix, docs, tfidf):
 ##{'ID': {'0' : [1,2,3,4],
 ##        '1' : [2,3,4,5],...}
 
-def emptyRandom(category, doc_dict, memo_dict):
+def emptyRandom(category, doc_dict, memo_empty_dict):
     docs = doc_dict[category]
     #if len(docs) != 0:
-    random_number = random.randint(0, len(docs) - 1)
-    output = docs[random_number]
+    pro = random.random() * sum(x[1] for x in docs)
+    for i in range(len(docs)):
+        pro -= docs[i][1]
+        if pro <= 0:
+            output = docs[i][0]
+            position = i
+            break
     if len(doc_dict[category]) == 1:
-        memo_dict.append([doc_dict[category][0], category])
+        memo_empty_dict.append([doc_dict[category][0], category])
         del doc_dict[category]
     else:
-        memo_dict.append([doc_dict[category][random_number], category])
-        del doc_dict[category][random_number]
-    # else:
-    #     del doc_dict[category]
-    #     ##random change a category if the previous chosen category is empty
-    #     category_new = list(doc_dict.keys())[random.randint(0, len(list(doc_dict.keys())) - 1)]
-    #     output = emptyRandom(category_new, doc_dict)
+        memo_empty_dict.append([doc_dict[category][position], category])
+        del doc_dict[category][position]
+        # pro = random.random() * sum(x[1] for x in matrix[1:])
+        # for i in range(len(matrix)):
+        #     pro -= matrix[i][1]
+        #     if pro <= 0:
+        #         output = [matrix[i][0], matrix[i][1]]
     return output
 
 
-def emptyDocPair(category, doc_dict, memo_dict):
-    output = [FixType(str(category)) + '#' + str(emptyRandom(category, doc_dict, memo_dict)) + '.txt', 0]
+def emptyDocPair(category, doc_dict, memo_empty_dict):
+    output = [FixType(str(category)) + '#' + str(emptyRandom(category, doc_dict, memo_empty_dict)) + '.txt', 0]
     return output
 
 
@@ -323,15 +341,23 @@ def FixType(type):
         output = '0' + type
     return output
 
-def ChooseDoc(category, matrix, memo_dict):
+def ChooseDoc(category, matrix, doc_list, memo_score_dict, memo_empty_dict):
     output = 0
     pro = random.random() * sum(x[1] for x in matrix[1:])
     for i in range(len(matrix)):
         pro -= matrix[i][1]
         if pro <= 0:
             output = [matrix[i][0], matrix[i][1]]
-            memo_dict.append((category - 1, i, matrix[i][1]))
+            memo_score_dict.append((category - 1, i, matrix[i][1]))
             matrix[i][1] = 0
+            for m in range(len(doc_list[category])):
+                if doc_list[category][m][0] == int(matrix[i][0].replace('.txt', '').split('#')[-1]):
+                    memo_empty_dict.append([doc_list[category][m], category])
+                    if len(doc_list[category]) == 1:
+                        del doc_list[category]
+                    else:
+                        del doc_list[category][m]
+                    break
             break
     return output
 
@@ -349,15 +375,17 @@ def DocsGive(mega_doc_dict, Prob_Matrix, docslist, length, size):
             #position = [1] * len(Prob_Matrix[key])
             for m in range(length):
                 category = BuildCategory(Prob_Matrix[key])
-                while not (category in doc_dict.keys()):
+                while (not category in doc_dict) and len(doc_dict) > 0 :
                     category = BuildCategory(Prob_Matrix[key])
+                if len(doc_dict) == 0:
+                    break
                 docc = docslist[key][category - 1]
                 ##
                 if sum(x[1] for x in docc) == 0:
                     temp.append(int(emptyDocPair(category, doc_dict, memo_empty_dict)[0][3:].replace('.txt', '')))
                     #temp.append(['empty'])
                 else:
-                    docPair = ChooseDoc(category, docc, memo_score_dict)
+                    docPair = ChooseDoc(category, docc, doc_dict, memo_score_dict, memo_empty_dict)
                     #temp.append([docPair[0], docPair[1]])
                     temp.append(int(docPair[0][3:].replace('.txt', '')))
                     #position[category - 1] += 1
@@ -370,6 +398,36 @@ def DocsGive(mega_doc_dict, Prob_Matrix, docslist, length, size):
                 docslist[key][item[0]][item[1]][1] = item[2]
             output[key].append(temp)
     return output
+
+def TimeScoreFunctionRelevant(x):
+    InterSectionHours = 120
+    # 5 * 24 = 120
+    y = 1.01 ** - (x - InterSectionHours)
+    return y
+
+
+def TimeScoreFunctionIrrelevant(x):
+    x_ = x//10
+    InterSectionHours = 120
+    # 5 * 24 = 120
+    y = 1.005 ** - (x_ - InterSectionHours)
+    return y
+
+# input = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
+# output = []
+# for item in input:
+#     output.append([TimeScoreFunctionRelevant(item), TimeScoreFunctionIrrelevant(item)])
+
+def TimeScore(timePair):
+    score = 0
+    ##timePair = [time sensitivity, time distance]
+    if int(timePair[0]) == 0:
+        #score = 'non relavent'
+        score = TimeScoreFunctionIrrelevant(float(timePair[1]))
+    elif int(timePair[0]) == 1:
+        score = TimeScoreFunctionRelevant(float(timePair[1]))
+        #score = 'relavent'
+    return score
 
 def main():
     enList, cnList = getUserByLanguage()
@@ -390,12 +448,15 @@ def main():
     cn_dict = {}
     cn_docs_set = set()
 
+    property_dict, ban_list = getPropertyDict()
+
     with open(os.path.expanduser('~/.recsys/Data/ConfigData/en_docs_dict.csv'), 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             if not (int(row[1]) in en_dict.keys()):
                 en_dict.update({int(row[1]): []})
-            en_dict[int(row[1])].append(int(row[0]))
+            if not (FixType(str(row[1])) + '#' + str(row[0]) in ban_list):
+                en_dict[int(row[1])].append([int(row[0]), TimeScore([row[2], row[3]])])
             en_docs_set.add(row[0])
     f.close()
 
@@ -404,10 +465,23 @@ def main():
         for row in reader:
             if not (int(row[1]) in cn_dict.keys()):
                 cn_dict.update({int(row[1]): []})
-            cn_dict[int(row[1])].append(int(row[0]))
+            if not (FixType(str(row[1])) + '#' + str(row[0]) in ban_list):
+                cn_dict[int(row[1])].append([int(row[0]), TimeScore([row[2], row[3]])])
             cn_docs_set.add(row[0])
     f.close()
 
+    ##clean en/cn_dict: invalid key or empty docs set
+    en_keys = list(en_dict.keys())
+    for key in en_keys:
+        if (not(key in range(1,29))) or len(en_dict[key]) == 0:
+            del en_dict[key]
+
+    cn_keys = list(cn_dict.keys())
+    for key in cn_keys:
+        if (not (key in range(1, 29))) or len(cn_dict[key]) == 0:
+            del cn_dict[key]
+
+    ##Delete text in ban_list from en/cn_dict
     # '12d377e804a308f6'
     userhistory = {'en': '', 'cn': ''}
     userhistory['en'] = GetUserHistory1(en_docs_set, set(active_user['en'].keys()))
@@ -421,15 +495,13 @@ def main():
     docs['en'], fileids['en'] = getText(address_docs_en, WordDictionary['en'])
     docs['cn'], fileids['cn'] = getText(address_docs_cn, WordDictionary['cn'])
 
-    time_dict = getTimeDict()
-
     timematrix = {'en': '', 'cn': ''}
-    timematrix['en'] = timeMatrix(time_dict, fileids['en'])
-    timematrix['cn'] = timeMatrix(time_dict, fileids['cn'])
+    timematrix['en'] = timeMatrix(property_dict, fileids['en'])
+    timematrix['cn'] = timeMatrix(property_dict, fileids['cn'])
 
     docslist = {'en': '', 'cn': ''}
-    docslist['en'] = GetDocsList(userhistory['en'], 'en', index, fileids, timematrix, docs, tfidf)
-    docslist['cn'] = GetDocsList(userhistory['cn'], 'cn', index, fileids, timematrix, docs, tfidf)
+    docslist['en'] = GetDocsList(userhistory['en'], 'en', index, fileids, timematrix, docs, tfidf, ban_list)
+    docslist['cn'] = GetDocsList(userhistory['cn'], 'cn', index, fileids, timematrix, docs, tfidf, ban_list)
     print('Similarity list finished')
 
     print('All systems go')
@@ -442,11 +514,12 @@ def main():
     docslist['cn'].update({'chinese_default': [[['empty', 0]]]*28})
     docslist['en'].update({'english_default': [[['empty', 0]]]*28})
 #output = {'en': '', 'cn': ''}
-    output_cn = DocsGive(en_dict, Prob_en, docslist['en'], 35, 100)
-    output_en = DocsGive(cn_dict, Prob_cn, docslist['cn'], 35, 100)
 
-    #output_cn = DocsGive(cn_dict, {'chinese_default': Prob_cn['chinese_default']}, docslist['cn'], 35, 100)
-    #output_en = DocsGive(en_dict, {'english_default': Prob_en['english_default']}, docslist['en'], 35, 100)
+    #output_cn = DocsGive(en_dict, Prob_en, docslist['en'], 35, 100)
+    #output_en = DocsGive(cn_dict, Prob_cn, docslist['cn'], 35, 100)
+
+    output_cn = DocsGive(cn_dict, {'chinese_default': Prob_cn['chinese_default']}, docslist['cn'], 35, 100)
+    output_en = DocsGive(en_dict, {'12d377e804a308f6': Prob_en['12d377e804a308f6']}, docslist['en'], 35, 100)
     print('output finished')
     print(time.strftime('%Y-%m-%d %X', time.localtime()))
 ##Test id en: 12d377e804a308f6
@@ -455,7 +528,6 @@ def main():
 
 def SaveOutput():
     cn_result, en_result = main()
-    output = []
     # for key in cn_result:
     #     output.append([key, cn_result[key]])
     # for key in en_result:
@@ -467,3 +539,5 @@ def SaveOutput():
         for res in en_result:
             wf.write(res+"\t" + json.dumps(en_result[res], separators = (',', ':')) + '\n')
     wf.close()
+
+output1, output2 = main()
