@@ -5,7 +5,6 @@ import os
 import time
 import sys
 from datetime import datetime, timedelta
-# from RecommendationSys.src.Main import SaveOutput
 
 
 def move_log_file():
@@ -49,11 +48,11 @@ def run(session):
     save_all_news(news_list, os.path.expanduser("~/.recsys/Data/TestDocs/news_all.json"))
 
     move_log_file()
-    import RecommendationSys.src.UpdateMatrix as update_matrix
-    update_matrix.main()
+    # import RecommendationSys.src.UpdateMatrix as update_matrix
+    # update_matrix.main()
 
-    import RecommendationSys.src.Main as result_saver
-    result_saver.SaveOutput()
+    # import RecommendationSys.src.Main as result_saver
+    # result_saver.SaveOutput()
 
     insert_rec_from_file(session, os.path.expanduser('~/.recsys/Data/Output/device_result.tsv'))
 

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -43,6 +43,8 @@ def insert_rec_from_file(session, file_path, bulksize=100):
     insert_recommended_list(session, recs, bulksize)
     file.close()
 
+def get_expired_device_ids(session):
+    return session.query(RecommendedList.device_id).order_by(text('updated_at'))[:1000]
 
 # def rec_test():
 #     db_engine = create_engine(
