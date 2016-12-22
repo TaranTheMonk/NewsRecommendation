@@ -134,7 +134,7 @@ def DefineLang(ProbMatrix, enList, cnList):
 
 def BuildCategory2(matrix, sum):
     output = 0
-    pro = random.random() / sum
+    pro = random.random() * sum
     for i in range(len(matrix)):
         pro -= matrix[i]
         if pro <= 0:
@@ -356,7 +356,7 @@ def FixType(type):
 def ChooseDoc2(doc_list, sum):
     output = 0
     num = random.random() * sum
-    for i in range(doc_list):
+    for i in range(len(doc_list)):
         num -= doc_list[i][1]
         if num <= 0:
             return i
@@ -391,6 +391,10 @@ def DocsGive2(doc_dict, Prob_Matrix, docslist, length, size):
     for key in Prob_Matrix:
         output[key] = []
         category_prob_matrix = Prob_Matrix[key]
+	# if no doc on this category, set prob = 0
+        for i in range(len(category_prob_matrix)):
+            if not (i + 1) in doc_dict or len(doc_dict[i + 1]) == 0:
+                category_prob_matrix[i] = 0
         for n in range(size):
             temp = []
             memo_category_prob_matrix = []
@@ -406,7 +410,7 @@ def DocsGive2(doc_dict, Prob_Matrix, docslist, length, size):
                 if category == 0:
                     break
 
-                if sum_user_docslist > 1e-9:
+                if sum_user_docslist[category - 1] > 1e-9:
                     #similar doc is available
                     docs_list = user_docslist[category - 1]
                     index = ChooseDoc2(docs_list, sum_user_docslist[category - 1])
@@ -430,7 +434,7 @@ def DocsGive2(doc_dict, Prob_Matrix, docslist, length, size):
                     docs_list[index][1] = 0
                     if sum_doc_dict[category] < 1e9:
                         # destroy this category
-                        memo_category_prob_matrix.append(category, category_prob_matrix[category - 1])
+                        memo_category_prob_matrix.append([category, category_prob_matrix[category - 1]])
                         sum_category_prod_matrix -= category_prob_matrix[category - 1]
                         category_prob_matrix[category - 1] = 0
             for row in memo_category_prob_matrix:
@@ -438,7 +442,7 @@ def DocsGive2(doc_dict, Prob_Matrix, docslist, length, size):
             for row in memo_user_doc_list:
                 user_docslist[row[0] - 1][row[1]][1] = row[2]
             for row in memo_doc_dict:
-                category_prob_matrix[row[0]][row[1]][1] = row[2]
+                doc_dict[row[0]][row[1]][1] = row[2]
                 sum_doc_dict[row[0]] += row[2]
             output[key].append(temp)
 
