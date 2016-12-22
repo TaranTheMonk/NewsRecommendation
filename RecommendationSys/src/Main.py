@@ -3,13 +3,16 @@
 ##6th, Dec, 2016
 ##Developed by Xulang
 ##The enter of CN
+from . import CosSimilarityAL as cal
+
+##manualy import the above##
+
 import time
 import random
 import json
 import copy
 import csv
 from gensim import similarities, corpora, models
-from . import CosSimilarityAL as cal
 import numpy as np
 import os
 
@@ -237,7 +240,6 @@ def timeMatrix(property_dict, fileids):
     #output = list(map(lambda x: x/maxmum, output))
     return np.array(output)
 
-
 def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs, tfidf, ban_list):
     C = 100
     ##C: output size
@@ -331,7 +333,6 @@ def emptyDocPair(category, doc_dict, memo_empty_dict):
     output = [FixType(str(category)) + '#' + str(emptyRandom(category, doc_dict, memo_empty_dict)) + '.txt', 0]
     return output
 
-
 ##A function that will output the final result for one time
 ##length: the length of a given array
 ##size: the number of given arrays
@@ -404,7 +405,6 @@ def TimeScoreFunctionRelevant(x):
     # 5 * 24 = 120
     y = 1.01 ** - (x - InterSectionHours)
     return y
-
 
 def TimeScoreFunctionIrrelevant(x):
     x_ = x//10

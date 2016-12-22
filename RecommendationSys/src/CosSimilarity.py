@@ -2,11 +2,13 @@
 ##Compute Similarity Module
 ##7th, Dec, 2016
 ##Developed by Xulang
-
 from . import CosSimilarityAL as cal
+from . import JsonTextTransFormer as ttf
+
+##manualy import the above##
+
 import gensim
 from gensim import similarities
-from . import JsonTextTransFormer as ttf
 import pandas as pd
 import os
 

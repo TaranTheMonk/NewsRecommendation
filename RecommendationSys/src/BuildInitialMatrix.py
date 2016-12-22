@@ -2,9 +2,11 @@
 ##Building Matrix Module
 ##6th, Dec, 2016
 ##Developed by Xulang
+from . import BuildInitialAlgorithm as bal
+
+##manualy import the above##
 
 import csv
-from . import BuildInitialAlgorithm as bal
 import copy
 import pandas as pd
 import os
