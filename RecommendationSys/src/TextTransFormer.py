@@ -1,13 +1,6 @@
 import csv
 from datetime import datetime
 import os
-import shutil
-
-shutil.rmtree(os.path.expanduser('~/.recsys/Data/TestDocs/cn'))
-shutil.rmtree(os.path.expanduser('~/.recsys/Data/TestDocs/en'))
-os.system('mkdir -p ~/.recsys/Data/TestDocs')
-os.system('mkdir -p ~/.recsys/Data/TestDocs/cn')
-os.system('mkdir -p ~/.recsys/Data/TestDocs/en')
 
 current = datetime.now()
 def AddZero(rawString):

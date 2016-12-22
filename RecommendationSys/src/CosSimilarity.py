@@ -11,17 +11,19 @@ import gensim
 from gensim import similarities
 import pandas as pd
 import os
-
+import shutil
 ##Build tf to tf-idf
 ##Compute similarity and get output
 
 ##Wash text before refresh config
 
+shutil.rmtree(os.path.expanduser('~/.recsys/Data/TestDocs/cn'))
+shutil.rmtree(os.path.expanduser('~/.recsys/Data/TestDocs/en'))
 os.system('mkdir -p ~/.recsys/Data/ConfigData')
 os.system('mkdir -p ~/.recsys/Data/TestDocs')
 os.system('mkdir -p ~/.recsys/Data/TestDocs/cn')
 os.system('mkdir -p ~/.recsys/Data/TestDocs/en')
-
+print('Texts warehouse cleaned')
 
 def getData_en(docs_address):
     #Import User Dataset

@@ -22,7 +22,7 @@ def FixTime(rawtime):
     date_format = '%Y-%m-%d %H:%M:%S'
     #date = datetime.strptime(rawtime, date_format)
     temp = (rawtime[:10] + ' ' + rawtime[11:19])
-    cleaned_time = time.mktime(time.strptime(temp, '%Y-%m-%d %H:%M:%S'))
+    cleaned_time = time.mktime(time.strptime(temp, date_format))
     delta = current - cleaned_time
     output = delta / 3600
     #output = str(delta.days + 1)
