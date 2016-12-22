@@ -515,11 +515,11 @@ def main():
     docslist['en'].update({'english_default': [[['empty', 0]]]*28})
 #output = {'en': '', 'cn': ''}
 
-    #output_cn = DocsGive(en_dict, Prob_en, docslist['en'], 35, 100)
-    #output_en = DocsGive(cn_dict, Prob_cn, docslist['cn'], 35, 100)
+    output_cn = DocsGive(en_dict, Prob_en, docslist['en'], 35, 100)
+    output_en = DocsGive(cn_dict, Prob_cn, docslist['cn'], 35, 100)
 
-    output_cn = DocsGive(cn_dict, {'chinese_default': Prob_cn['chinese_default']}, docslist['cn'], 35, 100)
-    output_en = DocsGive(en_dict, {'12d377e804a308f6': Prob_en['12d377e804a308f6']}, docslist['en'], 35, 100)
+    #output_cn = DocsGive(cn_dict, {'chinese_default': Prob_cn['chinese_default']}, docslist['cn'], 35, 100)
+    #output_en = DocsGive(en_dict, {'12d377e804a308f6': Prob_en['12d377e804a308f6']}, docslist['en'], 35, 100)
     print('output finished')
     print(time.strftime('%Y-%m-%d %X', time.localtime()))
 ##Test id en: 12d377e804a308f6
