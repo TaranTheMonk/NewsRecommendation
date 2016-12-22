@@ -67,5 +67,6 @@ def run_random_only(session):
     file.close()
     import RecommendationSys.src.Main as result_saver
     result_saver.SaveOutput()
+    insert_rec_from_file(session, os.path.expanduser('~/.recsys/Data/Output/device_result.tsv'))
 
 read_from_config()

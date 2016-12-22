@@ -3,7 +3,7 @@
 ##7th, Dec, 2016
 ##Developed by Xulang
 
-from src import CosSimilarityAL as cal
+from ..src import CosSimilarityAL as cal
 import gensim
 from gensim import similarities
 from . import JsonTextTransFormer as ttf
