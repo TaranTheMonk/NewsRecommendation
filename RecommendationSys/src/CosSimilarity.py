@@ -6,7 +6,7 @@
 from src import CosSimilarityAL as cal
 import gensim
 from gensim import similarities
-from src import JsonTextTransFormer as ttf
+from . import JsonTextTransFormer as ttf
 import pandas as pd
 import os
 

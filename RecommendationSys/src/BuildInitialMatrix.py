@@ -4,7 +4,7 @@
 ##Developed by Xulang
 
 import csv
-from src import BuildInitialAlgorithm as bal
+from . import BuildInitialAlgorithm as bal
 import copy
 import pandas as pd
 import os

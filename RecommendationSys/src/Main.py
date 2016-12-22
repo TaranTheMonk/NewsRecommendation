@@ -9,7 +9,7 @@ import json
 import copy
 import csv
 from gensim import similarities, corpora, models
-from src import CosSimilarityAL as cal
+from . import CosSimilarityAL as cal
 import numpy as np
 import os
 

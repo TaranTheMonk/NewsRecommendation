@@ -3,7 +3,7 @@
 ##6th, Dec, 2016
 ##Developed by Xulang
 
-from src import UpdateAlgorithm as ual
+from . import UpdateAlgorithm as ual
 import csv
 import copy
 import numpy as np
