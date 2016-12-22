@@ -3,6 +3,7 @@ from DB.recommended_list import *
 import argparse
 import os
 import time
+import re
 import sys
 from datetime import datetime, timedelta
 
@@ -16,8 +17,10 @@ def run_timer_task(session, moment):
     while True:
         if datetime.utcnow().strftime("%M:%S") == moment:
             run(session)
-        else: 
-            run_random_only(session)
+        else:
+            moment_min = int(moment.split(':')[0])
+            if datetime.utcnow().second % 60 == 0 and (moment_min + 55 - datetime.utcnow().minute) % 60 > 5:
+                run_random_only(session) 
         print(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
         sys.stdout.flush()
         time.sleep(1)
@@ -35,6 +38,10 @@ def read_from_config():
     if not args.dev and not args.prod:
         parser.print_help()
         return
+    if not re.compile('^[0-5][0-9]:[0-5][0-9]$').match(args.time):
+        print('Time format wrong. ')
+        return 
+
     mysql_url = 'mysql://HSDBADMIN:NestiaHSPWD@hsdb.cd29ypfepkmi.ap-southeast-1.rds.amazonaws.com:3306/news'
     if args.prod:
         mysql_url = 'mysql://nestia_food:nestiafood002233@prod-mysql-nestia-food.cd29ypfepkmi.ap-southeast-1.rds.amazonaws.com:3306/news'
@@ -50,11 +57,15 @@ def run(session):
     save_all_news(news_list, os.path.expanduser("~/.recsys/Data/TestDocs/news_all.json"))
 
     move_log_file()
-    # import RecommendationSys.src.UpdateMatrix as update_matrix
-    # update_matrix.main()
 
-    # import RecommendationSys.src.Main as result_saver
-    # result_saver.SaveOutput()
+    import RecommendationSys.src.CosSimilarity as cos_sim
+    cos_sim.main()
+
+    import RecommendationSys.src.UpdateMatrix as update_matrix
+    update_matrix.main()
+
+    import RecommendationSys.src.Main as result_saver
+    result_saver.SaveOutput()
 
     insert_rec_from_file(session, os.path.expanduser('~/.recsys/Data/Output/device_result.tsv'))
 
