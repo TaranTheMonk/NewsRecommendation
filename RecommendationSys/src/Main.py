@@ -412,7 +412,7 @@ def DocsGive2(doc_dict, Prob_Matrix, docslist, length, size):
                     index = ChooseDoc2(docs_list, sum_user_docslist[category - 1])
                     if index == -1:
                         continue
-                    temp.append(docs_list[index][0])
+                    temp.append(docs_list[index][2])
                     # Destroy this doc
                     sum_user_docslist[category - 1] -= docslist[index][1]
                     memo_user_doc_list.append([category, index, docs_list[index][1]])
@@ -423,6 +423,8 @@ def DocsGive2(doc_dict, Prob_Matrix, docslist, length, size):
                     # Impossible to trigger
                     if index == -1:
                         break
+                    temp.append(docs_list[index][0])
+                    # Destroy this doc
                     memo_doc_dict.append([category, index, docs_list[index][1]])
                     sum_doc_dict[category] -= docs_list[index][1]
                     docs_list[index][1] = 0
@@ -606,18 +608,18 @@ def main():
 #output = {'en': '', 'cn': ''}
 
     def convert_name_to_id(dict):
-        for key, val in dict.item():
+        for key, val in dict.items():
             for doc in val:
-                if len(doc) == 2:
+                if doc[0] != 'empty' and len(doc) == 2:
                     doc.append(int(doc[0].replace('.txt', '').split('#')[-1]))
-    convert_name_to_id(en_dict)
-    convert_name_to_id(cn_dict)
+    convert_name_to_id(docslist['en'])
+    convert_name_to_id(docslist['cn'])
 
-    output_cn = DocsGive(en_dict, Prob_en, docslist['en'], 35, 100)
-    output_en = DocsGive(cn_dict, Prob_cn, docslist['cn'], 35, 100)
+    output_cn = DocsGive2(en_dict, Prob_en, docslist['en'], 35, 100)
+    output_en = DocsGive2(cn_dict, Prob_cn, docslist['cn'], 35, 100)
 
-    #output_cn = DocsGive(cn_dict, {'chinese_default': Prob_cn['chinese_default']}, docslist['cn'], 35, 100)
-    #output_en = DocsGive(en_dict, {'12d377e804a308f6': Prob_en['12d377e804a308f6']}, docslist['en'], 35, 100)
+    #output_cn = DocsGive2(cn_dict, {'chinese_default': Prob_cn['chinese_default']}, docslist['cn'], 35, 100)
+    #output_en = DocsGive2(en_dict, {'12d377e804a308f6': Prob_en['12d377e804a308f6']}, docslist['en'], 35, 100)
     print('output finished')
     print(time.strftime('%Y-%m-%d %X', time.localtime()))
 ##Test id en: 12d377e804a308f6
