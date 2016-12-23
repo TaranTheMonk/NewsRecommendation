@@ -46,7 +46,7 @@ def read_from_config():
     mysql_url = 'mysql://HSDBADMIN:NestiaHSPWD@hsdb.cd29ypfepkmi.ap-southeast-1.rds.amazonaws.com:3306/news'
     if args.prod:
         mysql_url = 'mysql://nestia_food:nestiafood002233@prod-mysql-nestia-food.cd29ypfepkmi.ap-southeast-1.rds.amazonaws.com:3306/news'
-    db_engine = create_engine(mysql_url, echo=True)
+    db_engine = create_engine(mysql_url)
     session = sessionmaker(bind=db_engine)()
     run_timer_task(session, args.time)
 
