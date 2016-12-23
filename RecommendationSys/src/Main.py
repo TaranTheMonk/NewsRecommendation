@@ -418,7 +418,7 @@ def DocsGive2(doc_dict, Prob_Matrix, docslist, length, size):
                         continue
                     temp.append(docs_list[index][2])
                     # Destroy this doc
-                    sum_user_docslist[category - 1] -= docslist[index][1]
+                    sum_user_docslist[category - 1] -= docs_list[index][1]
                     memo_user_doc_list.append([category, index, docs_list[index][1]])
                     docs_list[index][1] = 0
                 else:
@@ -613,9 +613,10 @@ def main():
 
     def convert_name_to_id(dict):
         for key, val in dict.items():
-            for doc in val:
-                if doc[0] != 'empty' and len(doc) == 2:
-                    doc.append(int(doc[0].replace('.txt', '').split('#')[-1]))
+            for cat in val:
+                for doc in cat:
+                    if doc[0] != 'empty' and len(doc) == 2:
+                        doc.append(int(doc[0].replace('.txt', '').split('#')[-1]))
     convert_name_to_id(docslist['en'])
     convert_name_to_id(docslist['cn'])
 
