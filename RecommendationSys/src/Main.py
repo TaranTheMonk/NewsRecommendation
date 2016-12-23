@@ -132,6 +132,16 @@ def DefineLang(ProbMatrix, enList, cnList):
 ##(PDF, size, length)
 ##One result one time
 
+def BuildCategory2(matrix, sum):
+    output = 0
+    pro = random.random() * sum
+    for i in range(len(matrix)):
+        pro -= matrix[i]
+        if pro <= 0:
+            output = i + 1
+            break
+    return output
+
 def BuildCategory(matrix):
     output = 0
     pro = random.random()
@@ -141,6 +151,7 @@ def BuildCategory(matrix):
             output = i + 1
             break
     return output
+
 
 #######################
 ## Load Config Files ##
@@ -342,7 +353,17 @@ def FixType(type):
         output = '0' + type
     return output
 
-def ChooseDoc(category, matrix, doc_list, memo_score_dict, memo_empty_dict):
+def ChooseDoc2(doc_list, sum):
+    output = 0
+    num = random.random() * sum
+    for i in range(len(doc_list)):
+        num -= doc_list[i][1]
+        if num <= 0:
+            return i
+    return -1
+
+
+def ChooseDoc(category, matrix, doc_dict, memo_score_dict, memo_empty_dict):
     output = 0
     pro = random.random() * sum(x[1] for x in matrix[1:])
     for i in range(len(matrix)):
@@ -351,16 +372,85 @@ def ChooseDoc(category, matrix, doc_list, memo_score_dict, memo_empty_dict):
             output = [matrix[i][0], matrix[i][1]]
             memo_score_dict.append((category - 1, i, matrix[i][1]))
             matrix[i][1] = 0
-            for m in range(len(doc_list[category])):
-                if doc_list[category][m][0] == int(matrix[i][0].replace('.txt', '').split('#')[-1]):
-                    memo_empty_dict.append([doc_list[category][m], category])
-                    if len(doc_list[category]) == 1:
-                        del doc_list[category]
+            for m in range(len(doc_dict[category])):
+                if doc_dict[category][m][0] == int(matrix[i][0].replace('.txt', '').split('#')[-1]):
+                    memo_empty_dict.append([doc_dict[category][m], category])
+                    if len(doc_dict[category]) == 1:
+                        del doc_dict[category]
                     else:
-                        del doc_list[category][m]
+                        del doc_dict[category][m]
                     break
             break
     return output
+
+def DocsGive2(doc_dict, Prob_Matrix, docslist, length, size):
+    output = {}
+    sum_doc_dict = {}
+    for category, docs_list in doc_dict.items():
+        sum_doc_dict[category] = sum(x[1] for x in docs_list)
+    for key in Prob_Matrix:
+        output[key] = []
+        category_prob_matrix = Prob_Matrix[key]
+	# if no doc on this category, set prob = 0
+        for i in range(len(category_prob_matrix)):
+            if not (i + 1) in doc_dict or len(doc_dict[i + 1]) == 0:
+                category_prob_matrix[i] = 0
+        for n in range(size):
+            temp = []
+            memo_category_prob_matrix = []
+            sum_category_prod_matrix = sum(category_prob_matrix)
+            user_docslist = docslist[key]
+            sum_user_docslist = []
+            memo_user_doc_list = []
+            memo_doc_dict = []
+            for cate_docslist in user_docslist:
+                sum_user_docslist.append(sum(x[1] for x in cate_docslist))
+            for m in range(length):
+                category = BuildCategory2(category_prob_matrix, sum_category_prod_matrix)
+                if category == 0:
+                    break
+
+                if sum_user_docslist[category - 1] > 1e-9:
+                    #similar doc is available
+                    docs_list = user_docslist[category - 1]
+                    index = ChooseDoc2(docs_list, sum_user_docslist[category - 1])
+                    if index == -1:
+                        continue
+                    temp.append(docs_list[index][2])
+                    # Destroy this doc
+                    sum_user_docslist[category - 1] -= docs_list[index][1]
+                    memo_user_doc_list.append([category, index, docs_list[index][1]])
+                    docs_list[index][1] = 0
+                else:
+                    docs_list = doc_dict[category]
+                    index = ChooseDoc2(docs_list, sum_doc_dict[category])
+                    # Impossible to trigger
+                    if index == -1:
+                        break
+                    temp.append(docs_list[index][0])
+                    # Destroy this doc
+                    memo_doc_dict.append([category, index, docs_list[index][1]])
+                    sum_doc_dict[category] -= docs_list[index][1]
+                    docs_list[index][1] = 0
+                    if sum_doc_dict[category] < 1e9:
+                        # destroy this category
+                        memo_category_prob_matrix.append([category, category_prob_matrix[category - 1]])
+                        sum_category_prod_matrix -= category_prob_matrix[category - 1]
+                        category_prob_matrix[category - 1] = 0
+            for row in memo_category_prob_matrix:
+                category_prob_matrix[row[0] - 1] = row[1]
+            for row in memo_user_doc_list:
+                user_docslist[row[0] - 1][row[1]][1] = row[2]
+            for row in memo_doc_dict:
+                doc_dict[row[0]][row[1]][1] = row[2]
+                sum_doc_dict[row[0]] += row[2]
+            output[key].append(temp)
+
+    return output
+
+
+
+
 
 def DocsGive(mega_doc_dict, Prob_Matrix, docslist, length, size):
     output = {}
@@ -438,6 +528,12 @@ def main():
 
     total_active_user_set = set(active_user['en'].keys()) | set(active_user['cn'].keys())
     Prob_Matrix = ImportData(total_active_user_set)
+    def cleanActiveUser(act_usr):
+        for device_id in act_usr:
+            if not device_id in Prob_Matrix:
+                act_usr.pop(device_id, None)
+    cleanActiveUser(active_user['en'])
+    cleanActiveUser(active_user['cn'])
 
     Prob_en, Prob_cn = DefineLang(Prob_Matrix, enList, cnList)
 
@@ -515,11 +611,20 @@ def main():
     docslist['en'].update({'english_default': [[['empty', 0]]]*28})
 #output = {'en': '', 'cn': ''}
 
-    output_cn = DocsGive(en_dict, Prob_en, docslist['en'], 35, 100)
-    output_en = DocsGive(cn_dict, Prob_cn, docslist['cn'], 35, 100)
+    def convert_name_to_id(dict):
+        for key, val in dict.items():
+            for cat in val:
+                for doc in cat:
+                    if doc[0] != 'empty' and len(doc) == 2:
+                        doc.append(int(doc[0].replace('.txt', '').split('#')[-1]))
+    convert_name_to_id(docslist['en'])
+    convert_name_to_id(docslist['cn'])
 
-    #output_cn = DocsGive(cn_dict, {'chinese_default': Prob_cn['chinese_default']}, docslist['cn'], 35, 100)
-    #output_en = DocsGive(en_dict, {'12d377e804a308f6': Prob_en['12d377e804a308f6']}, docslist['en'], 35, 100)
+    output_cn = DocsGive2(en_dict, Prob_en, docslist['en'], 35, 100)
+    output_en = DocsGive2(cn_dict, Prob_cn, docslist['cn'], 35, 100)
+
+    #output_cn = DocsGive2(cn_dict, {'chinese_default': Prob_cn['chinese_default']}, docslist['cn'], 35, 100)
+    #output_en = DocsGive2(en_dict, {'12d377e804a308f6': Prob_en['12d377e804a308f6']}, docslist['en'], 35, 100)
     print('output finished')
     print(time.strftime('%Y-%m-%d %X', time.localtime()))
 ##Test id en: 12d377e804a308f6
