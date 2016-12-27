@@ -11,8 +11,6 @@ import copy
 import pandas as pd
 import os
 
-os.system('mkdir -p ~/.recsys/Data/ConfigData')
-
 ##Probability Headers = ['Property', 'Home', 'F&B', 'Movie', 'Promotion', 'Lottery', 'Others']
 ##Raw_Headers = ['Url', 'API', 'Method', 'Time', 'ID']
 ##Read in data
@@ -114,6 +112,8 @@ def BuildQ(Dict):
 #####################
 
 def main():
+    os.system('mkdir -p ~/.recsys/Data/ConfigData')
+
     Dict, en_user, cn_user = ImportInitial()
     WriteInUserLang(en_user, cn_user)
     P_Dict = copy.deepcopy(Dict)

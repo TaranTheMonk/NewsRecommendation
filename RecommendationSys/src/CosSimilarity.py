@@ -17,14 +17,6 @@ import shutil
 
 ##Wash text before refresh config
 
-shutil.rmtree(os.path.expanduser('~/.recsys/Data/TestDocs/cn'))
-shutil.rmtree(os.path.expanduser('~/.recsys/Data/TestDocs/en'))
-os.system('mkdir -p ~/.recsys/Data/ConfigData')
-os.system('mkdir -p ~/.recsys/Data/TestDocs')
-os.system('mkdir -p ~/.recsys/Data/TestDocs/cn')
-os.system('mkdir -p ~/.recsys/Data/TestDocs/en')
-print('Texts warehouse cleaned')
-
 def getData_en(docs_address):
     #Import User Dataset
     #Specify dataset location
@@ -90,6 +82,16 @@ def enSavingConfig_cn(index, docs):
     return
 
 def main():
+    os.system('mkdir -p ~/.recsys/Data/TestDocs/cn')
+    os.system('mkdir -p ~/.recsys/Data/TestDocs/en')
+    shutil.rmtree(os.path.expanduser('~/.recsys/Data/TestDocs/cn'))
+    shutil.rmtree(os.path.expanduser('~/.recsys/Data/TestDocs/en'))
+    os.system('mkdir -p ~/.recsys/Data/ConfigData')
+    os.system('mkdir -p ~/.recsys/Data/TestDocs')
+    os.system('mkdir -p ~/.recsys/Data/TestDocs/cn')
+    os.system('mkdir -p ~/.recsys/Data/TestDocs/en')
+    print('Texts warehouse cleaned')
+
     Raw_Path = os.path.expanduser('~/.recsys/Data/TestDocs/news_all.json')
     ttf.WashRawText(Raw_Path)
 
