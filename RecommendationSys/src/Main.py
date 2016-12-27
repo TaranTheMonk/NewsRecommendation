@@ -429,7 +429,7 @@ def DocsGive2(doc_dict, Prob_Matrix, docslist, length, size):
                     memo_doc_dict.append([category, index, docs_list[index][1]])
                     sum_doc_dict[category] -= docs_list[index][1]
                     docs_list[index][1] = 0
-                    if sum_doc_dict[category] < 1e9:
+                    if sum_doc_dict[category] < 1e-9:
                         # destroy this category
                         memo_category_prob_matrix.append([category, category_prob_matrix[category - 1]])
                         sum_category_prod_matrix -= category_prob_matrix[category - 1]
