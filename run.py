@@ -20,7 +20,7 @@ def run_timer_task(session, moment):
             run(session)
         else:
             moment_min = int(moment.split(':')[0])
-            if datetime.utcnow().second % 60 == 0 and (moment_min + 55 - datetime.utcnow().minute) % 60 > 5:
+            if datetime.utcnow().second % 60 == 0 and (moment_min + 60 - datetime.utcnow().minute) % 60 > 5:
                 run_random_only(session)
         print(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
         sys.stdout.flush()
