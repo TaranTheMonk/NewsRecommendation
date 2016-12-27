@@ -4,8 +4,6 @@ import json
 import os
 import time
 
-current = time.mktime(time.strptime(datetime.now().strftime('%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S'))
-
 #temp = (raw_time[:10] + ' ' + raw_time[11:19])
 #cleaned_time = time.mktime(time.strptime(temp, '%Y-%m-%d %H:%M:%S'))
 
@@ -18,7 +16,7 @@ def AddZero(rawString):
         output = rawString
     return output
 
-def FixTime(rawtime):
+def FixTime(rawtime, current):
     date_format = '%Y-%m-%d %H:%M:%S'
     #date = datetime.strptime(rawtime, date_format)
     temp = (rawtime[:10] + ' ' + rawtime[11:19])
@@ -29,6 +27,8 @@ def FixTime(rawtime):
     return output
 
 def WashRawText(Raw_Path):
+    current = time.mktime(time.strptime(datetime.now().strftime('%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S'))
+
     with open(Raw_Path, 'r', encoding = 'utf-8') as f:
         reader = f.read()
     f.close()
@@ -51,27 +51,27 @@ def WashRawText(Raw_Path):
     for doc in text:
         language_path = doc['language_id']
         title = FixType(str(doc['type'])) + '#' + str(doc['id'])
-        property_dict.update({title: [doc['time_bound'], FixTime(doc['published_at']), doc['status'], doc['reveal_mode']]})
+        property_dict.update({title: [doc['time_bound'], FixTime(doc['published_at'], current), doc['status'], doc['reveal_mode']]})
         ##1 is doc['time_senstitivity']
         ##title = type#id
 
         all_news_dict.update({doc['id']: doc['type']})
 
         if language_path == 'en':
-            en_docs_dict.update({doc['id']: [doc['type'], doc['time_bound'], FixTime(doc['published_at'])]})
+            en_docs_dict.update({doc['id']: [doc['type'], doc['time_bound'], FixTime(doc['published_at'], current)]})
             with open(os.path.expanduser('~/.recsys/Data/TestDocs/' + language_path + '/' + title + '.txt'), 'w', encoding='utf-8') as t:
                 t.write(doc['title'] + '.'+ doc['content'])
             t.close()
 
         elif language_path == 'cn':
-            cn_docs_dict.update({doc['id']: [doc['type'], doc['time_bound'], FixTime(doc['published_at'])]})
+            cn_docs_dict.update({doc['id']: [doc['type'], doc['time_bound'], FixTime(doc['published_at'], current)]})
             with open(os.path.expanduser('~/.recsys/Data/TestDocs/' + language_path + '/' + title + '.txt'), 'w', encoding='utf-8') as t:
                 t.write(doc['title'] + '.' + doc['content'])
             t.close()
 
         elif language_path == 'en&cn':
-            en_docs_dict.update({doc['id']: [doc['type'], doc['time_bound'], FixTime(doc['published_at'])]})
-            cn_docs_dict.update({doc['id']: [doc['type'], doc['time_bound'], FixTime(doc['published_at'])]})
+            en_docs_dict.update({doc['id']: [doc['type'], doc['time_bound'], FixTime(doc['published_at'], current)]})
+            cn_docs_dict.update({doc['id']: [doc['type'], doc['time_bound'], FixTime(doc['published_at'], current)]})
             with open(os.path.expanduser('~/.recsys/Data/TestDocs/' + 'en' + '/' + title + '.txt'), 'w', encoding='utf-8') as t:
                 t.write(doc['title'] + '.' + doc['content'])
             t.close()

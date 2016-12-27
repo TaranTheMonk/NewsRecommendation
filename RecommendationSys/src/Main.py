@@ -16,8 +16,6 @@ from gensim import similarities, corpora, models
 import numpy as np
 import os
 
-os.system('mkdir -p ~/.recsys/Data/Output')
-
 def getUserByLanguage():
     enList = set()
     cnList = set()
@@ -519,6 +517,8 @@ def TimeScore(timePair):
     return score
 
 def main():
+    os.system('mkdir -p ~/.recsys/Data/Output')
+
     enList, cnList = getUserByLanguage()
 
     active_user = {'en': '', 'cn': ''}

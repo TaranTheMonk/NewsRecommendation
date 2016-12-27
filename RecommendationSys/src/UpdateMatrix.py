@@ -12,8 +12,6 @@ import numpy as np
 import pandas as pd
 import os
 
-os.system('mkdir -p ~/.recsys/Data/ConfigData')
-
 def GetUserHistory2():
     userhistory = {}
     with open(os.path.expanduser('~/.recsys/Data/ConfigData/Test-Reading.csv'), 'r', encoding = 'utf-8') as f:
@@ -159,6 +157,8 @@ def OutputReading(history):
 #####################
 
 def main():
+    os.system('mkdir -p ~/.recsys/Data/ConfigData')
+
     ##Get User Lang
     enUser = set()
     cnUser = set()
