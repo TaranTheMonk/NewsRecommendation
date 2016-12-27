@@ -229,7 +229,6 @@ def getText(docs_address, dictionary):
 def getPropertyDict():
     output = {}
     ban_list = set()
-    base = 2
     with open(os.path.expanduser('~/.recsys/Data/ConfigData/property_dict.csv'), 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
@@ -620,8 +619,8 @@ def main():
     convert_name_to_id(docslist['en'])
     convert_name_to_id(docslist['cn'])
 
-    output_cn = DocsGive2(en_dict, Prob_en, docslist['en'], 35, 100)
-    output_en = DocsGive2(cn_dict, Prob_cn, docslist['cn'], 35, 100)
+    output_en = DocsGive2(en_dict, Prob_en, docslist['en'], 35, 100)
+    output_cn = DocsGive2(cn_dict, Prob_cn, docslist['cn'], 35, 100)
 
     #output_cn = DocsGive2(cn_dict, {'chinese_default': Prob_cn['chinese_default']}, docslist['cn'], 35, 100)
     #output_en = DocsGive2(en_dict, {'12d377e804a308f6': Prob_en['12d377e804a308f6']}, docslist['en'], 35, 100)
@@ -629,18 +628,18 @@ def main():
     print(time.strftime('%Y-%m-%d %X', time.localtime()))
 ##Test id en: 12d377e804a308f6
 ##Test id cn: 3A3D33EF-0C28-4430-A700-4ADFAA6327B7
-    return output_cn, output_en
+    return output_en, output_cn
 
 def SaveOutput():
-    cn_result, en_result = main()
+    en_result, cn_result = main()
     # for key in cn_result:
     #     output.append([key, cn_result[key]])
     # for key in en_result:
     #     output.append([key, en_result[key]])
 
     with open(os.path.expanduser('~/.recsys/Data/Output/device_result.tsv'), mode = 'w') as wf:
-        for res in cn_result:
-            wf.write(res+"\t" + json.dumps(cn_result[res], separators = (',', ':')) + '\n')
         for res in en_result:
             wf.write(res+"\t" + json.dumps(en_result[res], separators = (',', ':')) + '\n')
+        for res in cn_result:
+            wf.write(res+"\t" + json.dumps(cn_result[res], separators = (',', ':')) + '\n')
     wf.close()
