@@ -81,8 +81,11 @@ def run_random_only(session):
             file.write(device_id[0] + '\n')
     file.close()
     import RecommendationSys.src.Main as result_saver
-    result_saver.SaveOutput()
-    insert_rec_from_file(session, os.path.expanduser('~/.recsys/Data/Output/device_result.tsv'))
+    gen = result_saver.main2()
+    os.system('gcc %s/RecommendationSys/src/c_sampler/sampler.c -o ~/.recsys/Data/ConfigData/sampler.o' % (os.getcwd()))
+    for i in gen:
+        os.system('cd ~/.recsys/Data/ConfigData && ./sampler.o > ../Output/device_result.tsv')
+        insert_rec_from_file(session, os.path.expanduser('~/.recsys/Data/Output/device_result.tsv'))
     print('Shuffle finished')
 
 read_from_config()

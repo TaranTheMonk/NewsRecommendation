@@ -128,7 +128,7 @@ void sample(double cate_prob[28], struct Doc * sim_list[30],  double sum_user_ca
 		// choose category
 		category = sample_in_prob_list(prob, sum_cate_prob);
 		if (category == -1) {
-			printf("category reach to null");
+			// printf("category reach to null");
 			break;
 		}
 		category++;
@@ -143,7 +143,7 @@ void sample(double cate_prob[28], struct Doc * sim_list[30],  double sum_user_ca
 			// cannot retrive similar docs
 			doc = sample_in_doc_list(nxt[category], docs_prob[category]);
 			if (doc == NULL) {
-				printf("Impossible to trigger this. SLAP YOUR FACE!! on round %d\n", i);
+				// printf("Impossible to trigger this. SLAP YOUR FACE!! on round %d\n", i);
 				break;
 			}
 
@@ -200,7 +200,7 @@ int sample_stream() {
 		fscanf(file, ",%d", &sim_len);
 		for (i = 0; i < sim_len; i++){
 			if (fscanf(file, ",%d,%d,%lf", &id, &type, &prob) != 3) {
-				printf("Input wrong on %s", device_id);
+				// printf("Input wrong on %s", device_id);
 				return -1;
 			}
 			sim_doc_list[i] = new_doc(id, type, prob);

@@ -780,6 +780,10 @@ def main2():
     convert_name_to_id(docslist['cn'])
 
     SaveCSamplerOutput(en_dict, Prob_en, docslist['en'])
+    yield 1
+    SaveCSamplerOutput(cn_dict, Prob_cn, docslist['cn'])
+    yield 2
+
     # output_cn = DocsGive2(cn_dict, Prob_cn, docslist['cn'], 35, 100)
 
     # output_cn = DocsGive2(cn_dict, {'chinese_default': Prob_cn['chinese_default']}, docslist['cn'], 35, 100)
