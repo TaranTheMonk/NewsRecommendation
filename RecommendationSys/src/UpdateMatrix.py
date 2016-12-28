@@ -209,6 +209,8 @@ def main():
     with open(os.path.expanduser('~/.recsys/Data/Input/input.csv'), 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
+            if len(row) < 6:
+                continue;
             if row[4] in enUser:
                 enUser.remove(row[4])
             elif row[4] in cnUser:
