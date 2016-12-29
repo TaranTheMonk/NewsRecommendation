@@ -157,6 +157,14 @@ void sample(double cate_prob[28], struct Doc * sim_list[30],  double sum_user_ca
 				docs_prob[category] = 0;
 			}
 		}
+		// 
+		for (int j = 0; j < i; j++) {
+			if (result[j] == result[i]) {
+				i--;
+				break;
+			}
+		}
+
 	}
 
 	for (i = 0; i < len_memo; i++) {

@@ -15,6 +15,7 @@ import csv
 from gensim import similarities, corpora, models
 import numpy as np
 import os
+from datetime import datetime
 
 
 def getUserByLanguage():
@@ -724,6 +725,7 @@ def main2():
             cn_docs_set.add(row[0])
     f.close()
 
+    print('[%s]-Starting clear empty key in doc' % (datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
     ##clean en/cn_dict: invalid key or empty docs set
     en_keys = list(en_dict.keys())
     for key in en_keys:
@@ -735,11 +737,16 @@ def main2():
         if (not (key in range(1, 29))) or len(cn_dict[key]) == 0:
             del cn_dict[key]
 
+    print('[%s]-Starting delete text in ban_list' % (datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
     ##Delete text in ban_list from en/cn_dict
     # '12d377e804a308f6'
+    print('[%s]-Starting reading user reading history. ' % (datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
     userhistory = {'en': '', 'cn': ''}
     userhistory['en'] = GetUserHistory1(en_docs_set, set(active_user['en'].keys()))
     userhistory['cn'] = GetUserHistory1(cn_docs_set, set(active_user['cn'].keys()))
+    print('[%s]- Finished reading user reading history. ' % (datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
+
+    print('[%s]- Starting getting text. ' % (datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
 
     docs = {'en': '', 'cn': ''}
     fileids = {'en': '', 'cn': ''}
@@ -748,15 +755,19 @@ def main2():
     address_docs_cn = os.path.expanduser('~/.recsys/Data/TestDocs/cn/')
     docs['en'], fileids['en'] = getText(address_docs_en, WordDictionary['en'])
     docs['cn'], fileids['cn'] = getText(address_docs_cn, WordDictionary['cn'])
+    print('[%s]- Finished getting text. ' % (datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
+    print('[%s]- Starting timeMatrix. ' % (datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
 
     timematrix = {'en': '', 'cn': ''}
     timematrix['en'] = timeMatrix(property_dict, fileids['en'])
     timematrix['cn'] = timeMatrix(property_dict, fileids['cn'])
+    print('[%s]- Finished timeMatrix. ' % (datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
 
+    print('[%s]-Starting generating similarity list' % (datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
     docslist = {'en': '', 'cn': ''}
     docslist['en'] = GetDocsList(userhistory['en'], 'en', index, fileids, timematrix, docs, tfidf, ban_list)
     docslist['cn'] = GetDocsList(userhistory['cn'], 'cn', index, fileids, timematrix, docs, tfidf, ban_list)
-    print('Similarity list finished')
+    print('[%s]-Similarity list finished' % (datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
 
     print('All systems go')
     print(time.strftime('%Y-%m-%d %X', time.localtime()))
