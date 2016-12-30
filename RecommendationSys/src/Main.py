@@ -530,10 +530,10 @@ def TimeScoreFunctionIrrelevant(x):
     return y
 
 
-input = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-output = []
-for item in input:
-    output.append([TimeScoreFunctionRelevant(item), TimeScoreFunctionIrrelevant(item)])
+# input = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
+# output = []
+# for item in input:
+#     output.append([TimeScoreFunctionRelevant(item), TimeScoreFunctionIrrelevant(item)])
 
 def TimeScore(timePair):
     score = 0
