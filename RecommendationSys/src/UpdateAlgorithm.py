@@ -176,6 +176,15 @@ def QDataTransform(raw_input, history, newsdict):
     output4 = NewsCount(output3, newsdict)
     return output4, output3_2
 
+def DetectNewsIds(raw_input):
+    output = set()
+    for news_id in raw_input:
+        if news_pattern.match(news_id[0]):
+            news = int(news_id[0].split('/')[-1])
+        output.add(news)
+    return output
+
+
 def PBuildProbability(matrix):
     total = sum(matrix)
     matrix = [matrix[0], sum(matrix[1:5]), matrix[5], sum(matrix[6:7]), matrix[8], matrix[9]]

@@ -11,6 +11,8 @@ import copy
 import numpy as np
 import pandas as pd
 import os
+import json
+
 
 def GetUserHistory2():
     userhistory = {}
@@ -100,6 +102,12 @@ def BuildQ(Dict_1, history):
     print('Q-Matrix Finished')
     return Dict_1, history
 
+def BuildUserReadingHistory(Dict_1, user_history_all):
+    for key in Dict_1:
+        if not key in user_history_all:
+            user_history_all[key] = set()
+        user_history_all[key].union(ual.DetectNewsIds(Dict_1[key]))
+
 def UpdateQ(DictOld, DictNew, DeltaPara):
     for key in DictNew:
         if key in DictOld.keys():
@@ -151,6 +159,13 @@ def OutputReading(history):
     wf.close()
     print('History write in finished')
     return
+
+def OutputUserReadingHistory(user_history_all):
+    with open(os.path.expanduser('allhistory.json'), mode='w') as wf:
+        for record in user_history_all:
+            if not record == '':
+                wf.write(record + "\t" + json.dumps(list(user_history_all[record]), separators=(',', ':')) + '\n')
+    wf.close()
 
 #####################
 # Q-Matrix Finished #
