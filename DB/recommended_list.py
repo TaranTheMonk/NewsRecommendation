@@ -17,20 +17,20 @@ class RecommendedList(Base):
     recommended_list = Column('list', String)
 
 
-def insert_recommended_list(session, recs, bulksize=100):
+def insert_recommended_list(session, recs, bulksize, lang):
     if len(recs) > bulksize:
         insert_recommended_list(recs[bulksize:], bulksize)
         recs = recs[:bulksize]
     if len(recs) == 0:
         return
-    sqlb = "INSERT INTO recommended_list (device_id, list) VALUES "
-    sqldata = ','.join("('%s', '%s')" % (rec.device_id, rec.recommended_list) for rec in recs)
-    sqle = " ON DUPLICATE KEY UPDATE list=values(list)"
+    sqlb = "INSERT INTO recommended_list (device_id, language_id, list) VALUES "
+    sqldata = ','.join("('%s', %s, '%s')" % (rec.device_id, str(lang), rec.recommended_list) for rec in recs)
+    sqle = " ON DUPLICATE KEY UPDATE list=values(list), language_id=values(language_id)"
     session.execute(''.join([sqlb, sqldata, sqle]))
     session.commit()
 
 
-def insert_rec_from_file(session, file_path, bulksize=100):
+def insert_rec_from_file(session, file_path, bulksize=100, lang=1):
     file = open(file_path, 'r')
     recs = []
     for line in iter(file.readline, ''):
@@ -38,9 +38,9 @@ def insert_rec_from_file(session, file_path, bulksize=100):
         if len(sp) == 2:
             recs.append(RecommendedList(sp[0], sp[1]))
         if len(recs) == bulksize:
-            insert_recommended_list(session, recs, bulksize)
+            insert_recommended_list(session, recs, bulksize, lang)
             recs = []
-    insert_recommended_list(session, recs, bulksize)
+    insert_recommended_list(session, recs, bulksize, lang)
     file.close()
 
 def get_expired_device_ids(session):
