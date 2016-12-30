@@ -707,7 +707,7 @@ def main2():
     Prob_Matrix = ImportData(total_active_user_set)
 
     def cleanActiveUser(act_usr):
-        for device_id in act_usr:
+        for device_id in list(act_usr):
             if not device_id in Prob_Matrix:
                 act_usr.pop(device_id, None)
 
