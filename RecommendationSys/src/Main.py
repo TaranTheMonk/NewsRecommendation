@@ -264,7 +264,7 @@ def timeMatrix(property_dict, fileids):
     return np.array(output)
 
 
-def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs, tfidf, ban_list):
+def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs, tfidf, ban_list, allhistory):
     C = 100
     ##C: output size
     outputdict = {}
@@ -282,11 +282,12 @@ def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs
             score = np.array(list(map(lambda x: x / maxmum, score)))
             ##top k, k = c - 1
             locallist = []
-            i = 0
-            while i <= C:
-                locallist.append((fileids[score.argmax()], score[score.argmax()]))
+            #i = 0
+            while len(locallist) <= C:
+                if not fileids[score.argmax()] in allhistory:
+                    locallist.append((fileids[score.argmax()], score[score.argmax()]))
                 score[score.argmax()] = -1
-                i += 1
+                #i += 1
             for textPair in locallist[1:]:
                 if not (textPair[0] in outputdict.keys()):
                     outputdict.update({textPair[0]: 0})
@@ -314,16 +315,21 @@ def putDocsInBag(docslist):
     return output
 
 
-def GetDocsList(userhistory, langFlag, index, fileids, timematrix, docs, tfidf, ban_list):
+def GetDocsList(userhistory, langFlag, index, fileids, timematrix, docs, tfidf, ban_list, allhistory):
     docslist = {}
     for key in userhistory.keys():
         if userhistory[key] == []:
             docslist.update({key: []})
             docslist[key] = putDocsInBag(docslist[key])
         else:
-            docslist.update({key: GiveRecommendationBySimilarity(
-                userhistory[key], index[langFlag], fileids[langFlag], timematrix[langFlag], docs[langFlag],
-                tfidf[langFlag], ban_list)})
+            if key in allhistory.keys():
+                docslist.update({key: GiveRecommendationBySimilarity(
+                    userhistory[key], index[langFlag], fileids[langFlag], timematrix[langFlag], docs[langFlag],
+                    tfidf[langFlag], ban_list, allhistory[key])})
+            else:
+                docslist.update({key: GiveRecommendationBySimilarity(
+                    userhistory[key], index[langFlag], fileids[langFlag], timematrix[langFlag], docs[langFlag],
+                    tfidf[langFlag], ban_list, {key: set()})})
             docslist[key] = putDocsInBag(docslist[key])
         for i in range(len(docslist[key])):
             if docslist[key][i][1:] != []:
@@ -524,10 +530,10 @@ def TimeScoreFunctionIrrelevant(x):
     return y
 
 
-# input = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-# output = []
-# for item in input:
-#     output.append([TimeScoreFunctionRelevant(item), TimeScoreFunctionIrrelevant(item)])
+input = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
+output = []
+for item in input:
+    output.append([TimeScoreFunctionRelevant(item), TimeScoreFunctionIrrelevant(item)])
 
 def TimeScore(timePair):
     score = 0
@@ -540,6 +546,18 @@ def TimeScore(timePair):
         # score = 'relavent'
     return score
 
+def getAllHistory():
+    output = {}
+    with open(os.path.expanduser('~/.recsys/Data/ConfigData/UserReadingHistory.tsv'), 'r', encoding = 'utf-8') as f:
+        reader = f.read()
+    f.close()
+    sample = reader.split('\n')
+    for item in sample:
+        if item != '':
+            temp = item.split('\t')
+            if len(temp) == 2:
+                output.update({temp[0]: set(json.loads(temp[1]))})
+    return output
 
 def main():
     os.system('mkdir -p ~/.recsys/Data/Output')
@@ -621,9 +639,11 @@ def main():
     timematrix['en'] = timeMatrix(property_dict, fileids['en'])
     timematrix['cn'] = timeMatrix(property_dict, fileids['cn'])
 
+    allhistory = getAllHistory()
+
     docslist = {'en': '', 'cn': ''}
-    docslist['en'] = GetDocsList(userhistory['en'], 'en', index, fileids, timematrix, docs, tfidf, ban_list)
-    docslist['cn'] = GetDocsList(userhistory['cn'], 'cn', index, fileids, timematrix, docs, tfidf, ban_list)
+    docslist['en'] = GetDocsList(userhistory['en'], 'en', index, fileids, timematrix, docs, tfidf, ban_list, allhistory)
+    docslist['cn'] = GetDocsList(userhistory['cn'], 'cn', index, fileids, timematrix, docs, tfidf, ban_list, allhistory)
     print('Similarity list finished')
 
     print('All systems go')
@@ -763,10 +783,12 @@ def main2():
     timematrix['cn'] = timeMatrix(property_dict, fileids['cn'])
     print('[%s]- Finished timeMatrix. ' % (datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
 
+    allhistory = getAllHistory()
+
     print('[%s]-Starting generating similarity list' % (datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
     docslist = {'en': '', 'cn': ''}
-    docslist['en'] = GetDocsList(userhistory['en'], 'en', index, fileids, timematrix, docs, tfidf, ban_list)
-    docslist['cn'] = GetDocsList(userhistory['cn'], 'cn', index, fileids, timematrix, docs, tfidf, ban_list)
+    docslist['en'] = GetDocsList(userhistory['en'], 'en', index, fileids, timematrix, docs, tfidf, ban_list, allhistory)
+    docslist['cn'] = GetDocsList(userhistory['cn'], 'cn', index, fileids, timematrix, docs, tfidf, ban_list, allhistory)
     print('[%s]-Similarity list finished' % (datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
 
     print('All systems go')
