@@ -175,7 +175,7 @@ def InputUserReadingHistory():
         for row in f:
             row = row.split('\t')
             if len(row) == 2 and row[0] != '':
-                user_history_all[row[0]] = json.loads(row[1])
+                user_history_all[row[0]] = set(json.loads(row[1]))
     f.close()
     return user_history_all
 
