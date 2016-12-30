@@ -102,7 +102,7 @@ def BuildQ(Dict_1, history):
     print('Q-Matrix Finished')
     return Dict_1, history
 
-def BuildUserReadingHistory(Dict_1, user_history_all):
+def UpdateUserReadingHistory(Dict_1, user_history_all):
     for key in Dict_1:
         if not key in user_history_all:
             user_history_all[key] = set()
@@ -161,11 +161,22 @@ def OutputReading(history):
     return
 
 def OutputUserReadingHistory(user_history_all):
-    with open(os.path.expanduser('allhistory.json'), mode='w') as wf:
+    with open(os.path.expanduser('~/.recsys/Data/ConfigData/UserReadingHistory.tsv'), mode='w') as wf:
         for record in user_history_all:
             if not record == '':
                 wf.write(record + "\t" + json.dumps(list(user_history_all[record]), separators=(',', ':')) + '\n')
     wf.close()
+
+def InputUserReadingHistory():
+    user_history_all = {}
+    with open(os.path.expanduser('~/.recsys/Data/ConfigData/UserReadingHistory.tsv'), mode='r') as f:
+        for row in f:
+            row = row.split('\t')
+            if len(row) == 2 and row[0] != '':
+                user_history_all[row[0]] = json.load(row[1])
+    f.close()
+    return user_history_all
+
 
 #####################
 # Q-Matrix Finished #
@@ -245,6 +256,10 @@ def main():
 
     active_user = pd.DataFrame(list(Dict_New.keys()))
     active_user.to_csv(os.path.expanduser('~/.recsys/Data/ConfigData/ActiveUser.csv'), index=False, header=False)
+
+    with InputUserReadingHistory() as user_history_all:
+        UpdateUserReadingHistory(user_history_all)
+        OutputUserReadingHistory(user_history_all)
 
     if '' in Dict_New.keys():
         del Dict_New['']
