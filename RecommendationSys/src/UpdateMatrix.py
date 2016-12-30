@@ -169,11 +169,13 @@ def OutputUserReadingHistory(user_history_all):
 
 def InputUserReadingHistory():
     user_history_all = {}
+    if not os.path.exists(os.path.expanduser('~/.recsys/Data/ConfigData/UserReadingHistory.tsv')):
+        return user_history_all
     with open(os.path.expanduser('~/.recsys/Data/ConfigData/UserReadingHistory.tsv'), mode='r') as f:
         for row in f:
             row = row.split('\t')
             if len(row) == 2 and row[0] != '':
-                user_history_all[row[0]] = json.load(row[1])
+                user_history_all[row[0]] = json.loads(row[1])
     f.close()
     return user_history_all
 
@@ -257,12 +259,14 @@ def main():
     active_user = pd.DataFrame(list(Dict_New.keys()))
     active_user.to_csv(os.path.expanduser('~/.recsys/Data/ConfigData/ActiveUser.csv'), index=False, header=False)
 
-    with InputUserReadingHistory() as user_history_all:
-        UpdateUserReadingHistory(user_history_all)
-        OutputUserReadingHistory(user_history_all)
-
     if '' in Dict_New.keys():
         del Dict_New['']
+
+    user_history_all = InputUserReadingHistory()
+    UpdateUserReadingHistory(Dict_New, user_history_all)
+    OutputUserReadingHistory(user_history_all)
+
+
     P_Dict_New = copy.deepcopy(Dict_New)
     Q_Dict_New = copy.deepcopy(Dict_New)
     P_Dict_New = BuildP(P_Dict_New)
