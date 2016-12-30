@@ -181,7 +181,7 @@ def DetectNewsIds(raw_input):
     for news_id in raw_input:
         if news_pattern.match(news_id[0]):
             news = int(news_id[0].split('/')[-1])
-        output.add(news)
+            output.add(news)
     return output
 
 
