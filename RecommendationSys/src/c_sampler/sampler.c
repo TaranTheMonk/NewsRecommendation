@@ -102,7 +102,7 @@ int input_doc_list() {
 
 void sample(double cate_prob[28], struct Doc * sim_list[30],  double sum_user_cate_prob[30], int round, int *result) {
 	double sum_cate_prob, prob[28], user_prob[30], docs_prob[30]; 
-	int i, index, category;
+	int i, j, index, category;
 	struct Doc * doc;
 	sum_cate_prob = 0;
 	// copy arrays
@@ -158,7 +158,7 @@ void sample(double cate_prob[28], struct Doc * sim_list[30],  double sum_user_ca
 			}
 		}
 		// 
-		for (int j = 0; j < i; j++) {
+		for (j = 0; j < i; j++) {
 			if (result[j] == result[i]) {
 				i--;
 				break;
