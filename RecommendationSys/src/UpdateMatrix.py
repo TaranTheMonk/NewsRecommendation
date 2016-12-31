@@ -163,7 +163,7 @@ def OutputReading(history):
 def OutputUserReadingHistory(user_history_all):
     with open(os.path.expanduser('~/.recsys/Data/ConfigData/UserReadingHistory.tsv'), mode='w') as wf:
         for record in user_history_all:
-            if not record == '':
+            if not record == '' and len(user_history_all[record]) > 0:
                 wf.write(record + "\t" + json.dumps(list(user_history_all[record]), separators=(',', ':')) + '\n')
     wf.close()
 
