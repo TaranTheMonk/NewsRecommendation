@@ -102,7 +102,7 @@ def BuildQ(Dict_1, history):
     print('Q-Matrix Finished')
     return Dict_1, history
 
-def BuildUserReadingHistory(Dict_1, user_history_all):
+def UpdateUserReadingHistory(Dict_1, user_history_all):
     for key in Dict_1:
         if not key in user_history_all:
             user_history_all[key] = set()
@@ -161,11 +161,24 @@ def OutputReading(history):
     return
 
 def OutputUserReadingHistory(user_history_all):
-    with open(os.path.expanduser('allhistory.json'), mode='w') as wf:
+    with open(os.path.expanduser('~/.recsys/Data/ConfigData/UserReadingHistory.tsv'), mode='w') as wf:
         for record in user_history_all:
-            if not record == '':
+            if not record == '' and len(user_history_all[record]) > 0:
                 wf.write(record + "\t" + json.dumps(list(user_history_all[record]), separators=(',', ':')) + '\n')
     wf.close()
+
+def InputUserReadingHistory():
+    user_history_all = {}
+    if not os.path.exists(os.path.expanduser('~/.recsys/Data/ConfigData/UserReadingHistory.tsv')):
+        return user_history_all
+    with open(os.path.expanduser('~/.recsys/Data/ConfigData/UserReadingHistory.tsv'), mode='r') as f:
+        for row in f:
+            row = row.split('\t')
+            if len(row) == 2 and row[0] != '':
+                user_history_all[row[0]] = set(json.loads(row[1]))
+    f.close()
+    return user_history_all
+
 
 #####################
 # Q-Matrix Finished #
@@ -225,7 +238,7 @@ def main():
         reader = csv.reader(f)
         for row in reader:
             if len(row) < 6:
-                continue;
+                continue
             if row[4] in enUser:
                 enUser.remove(row[4])
             elif row[4] in cnUser:
@@ -248,6 +261,12 @@ def main():
 
     if '' in Dict_New.keys():
         del Dict_New['']
+
+    user_history_all = InputUserReadingHistory()
+    UpdateUserReadingHistory(Dict_New, user_history_all)
+    OutputUserReadingHistory(user_history_all)
+
+
     P_Dict_New = copy.deepcopy(Dict_New)
     Q_Dict_New = copy.deepcopy(Dict_New)
     P_Dict_New = BuildP(P_Dict_New)
