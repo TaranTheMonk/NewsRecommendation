@@ -15,14 +15,17 @@ def move_log_file():
 
 
 def run_timer_task(session, moment):
+    last_run_hour = -1;
     while True:
-        if datetime.utcnow().strftime("%M:%S") == moment:
+        now = datetime.utcnow()
+        if last_run_hour == -1 and now.strftime("%M:%S") == moment or last_run_hour >= 0 and datetime.hour != last_run_hour:
             run(session)
+            last_run_hour = datetime.hour
         else:
             moment_min = int(moment.split(':')[0])
-            if datetime.utcnow().second % 60 == 0 and (moment_min + 60 - datetime.utcnow().minute) % 60 > 10:
+            if last_run_hour >= 0 or now.second % 60 == 0 and (moment_min + 60 - now.minute) % 60 > 10:
                 run_random_only(session)
-        print(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
+        print(now.strftime("%Y-%m-%dT%H:%M:%SZ"))
         sys.stdout.flush()
         time.sleep(1)
 
