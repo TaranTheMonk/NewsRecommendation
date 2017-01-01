@@ -65,10 +65,7 @@ def run(session):
     import RecommendationSys.src.UpdateMatrix as update_matrix
     update_matrix.main()
 
-    import RecommendationSys.src.Main as result_saver
-    result_saver.SaveOutput()
-
-    insert_rec_from_file(session, os.path.expanduser('~/.recsys/Data/Output/device_result.tsv'))
+    random_shuffle(session)
 
 
 def run_random_only(session):
@@ -80,6 +77,9 @@ def run_random_only(session):
         for device_id in device_ids:
             file.write(device_id[0] + '\n')
     file.close()
+    random_shuffle(session)
+
+def random_shuffle(session):
     import RecommendationSys.src.Main as result_saver
     gen = result_saver.main2()
     os.system('gcc %s/RecommendationSys/src/c_sampler/sampler.c -O1 -o ~/.recsys/Data/ConfigData/sampler.o' % (os.getcwd()))
