@@ -284,7 +284,7 @@ def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs
             locallist = []
             #i = 0
             while len(locallist) <= C:
-                if not fileids[score.argmax()] in allhistory:
+                if not int(fileids[score.argmax()].split('.')[0].split('#')[1]) in allhistory:
                     locallist.append((fileids[score.argmax()], score[score.argmax()]))
                 score[score.argmax()] = -1
                 #i += 1
