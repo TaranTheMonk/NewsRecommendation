@@ -108,7 +108,6 @@ def UpdateUserReadingHistory(Dict_1, user_history_all):
         if not key in user_history_all:
             user_history_all[key] = set()
         new_view = ual.DetectNewsIds(Dict_1[key])
-        print (new_view)
         cnt += len(new_view)
         user_history_all[key].update(new_view)
     return cnt
