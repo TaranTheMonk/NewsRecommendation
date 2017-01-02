@@ -20,7 +20,7 @@ def run_timer_task(session, moment):
         now = datetime.utcnow()
         if last_run_hour == -1 and now.strftime("%M:%S") == moment or last_run_hour >= 0 and datetime.hour != last_run_hour:
             run(session)
-            last_run_hour = datetime.hour
+            last_run_hour = now.hour
         else:
             moment_min = int(moment.split(':')[0])
             if last_run_hour >= 0 or now.second % 60 == 0 and (moment_min + 60 - now.minute) % 60 > 10:
