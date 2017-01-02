@@ -269,7 +269,6 @@ def main():
 
     user_history_all = InputUserReadingHistory()
     updated_cnt = UpdateUserReadingHistory(Dict_New, user_history_all)
-    print (user_history_all)
     OutputUserReadingHistory(user_history_all)
     print("Updated %d UserReadings. " % (updated_cnt))
 
