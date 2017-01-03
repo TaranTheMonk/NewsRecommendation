@@ -18,7 +18,7 @@ def run_timer_task(session, moment):
     last_run_hour = -1;
     while True:
         now = datetime.utcnow()
-        if last_run_hour == -1 and now.strftime("%M:%S") == moment or last_run_hour >= 0 and datetime.hour != last_run_hour:
+        if last_run_hour == -1 and now.strftime("%M:%S") == moment or last_run_hour >= 0 and now.hour != last_run_hour:
             run(session)
             last_run_hour = now.hour
         else:
