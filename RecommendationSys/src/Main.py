@@ -516,17 +516,16 @@ def DocsGive(mega_doc_dict, Prob_Matrix, docslist, length, size):
 
 
 def TimeScoreFunctionRelevant(x):
-    InterSectionHours = 120
+    InterSectionHours = 36
     # 5 * 24 = 120
     y = 1.01 ** - (x - InterSectionHours)
     return y
 
 
 def TimeScoreFunctionIrrelevant(x):
-    x_ = x // 10
     InterSectionHours = 120
     # 5 * 24 = 120
-    y = 1.005 ** - (x_ - InterSectionHours)
+    y = 1.005 ** - (x - InterSectionHours)
     return y
 
 
