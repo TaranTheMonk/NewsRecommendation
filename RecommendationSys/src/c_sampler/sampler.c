@@ -26,7 +26,7 @@ double sum_cate_docs_prob[30];
 struct Memo {
 	struct Doc *doc;
 	double prob;
-} * memo_list[100];
+} * memo_list[1000];
 int len_memo;
 
 void save_memo(struct Doc * doc) {

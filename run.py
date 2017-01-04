@@ -87,6 +87,7 @@ def random_shuffle(session):
     gen = result_saver.main2()
     os.system('gcc %s/RecommendationSys/src/c_sampler/sampler.c -O1 -o ~/.recsys/Data/ConfigData/sampler.o' % (os.getcwd()))
     for lang in gen:
+        os.system("cp ~/.recsys/Data/ConfigData/all_user_data_c.tsv ~/.recsys/Data/ConfigData/all_user_data_c_%s.tsv" % (lang))
         os.system('cd ~/.recsys/Data/ConfigData && ./sampler.o > ../Output/device_result.tsv')
         insert_rec_from_file(session, os.path.expanduser('~/.recsys/Data/Output/device_result.tsv'), lang=lang)
     print('Shuffle finished')
