@@ -288,7 +288,7 @@ def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs
                     locallist.append((fileids[score.argmax()], score[score.argmax()]))
                 score[score.argmax()] = -1
                 #i += 1
-            print("Locallist for %d got %d length" % (text, len(locallist)))
+            print("Locallist for %s got %d length" % (text, len(locallist)))
             for textPair in locallist:
                 if not (textPair[0] in outputdict.keys()):
                     outputdict.update({textPair[0]: 0})
