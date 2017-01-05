@@ -284,9 +284,13 @@ def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs
             locallist = []
             #i = 0
             while len(locallist) <= C:
-                if not int(fileids[score.argmax()].split('.')[0].split('#')[1]) in allhistory:
-                    locallist.append((fileids[score.argmax()], score[score.argmax()]))
-                score[score.argmax()] = -1
+                MaxPosition = score.argmax()
+                if not int(fileids[MaxPosition].split('.')[0].split('#')[1]) in allhistory \
+                        and not fileids[MaxPosition].replace('.txt', '') in ban_list:
+                    locallist.append((fileids[MaxPosition], score[MaxPosition]))
+                score[MaxPosition] = -1
+                if score[score.argmax()] == -1:
+                    break
                 #i += 1
             print("Locallist for %s got %d length" % (text, len(locallist)))
             for textPair in locallist:
@@ -294,8 +298,9 @@ def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs
                     outputdict.update({textPair[0]: 0})
                 outputdict[textPair[0]] = max(outputdict[textPair[0]], textPair[1])
     for key in outputdict:
-        if not (key.replace('.txt', '') in ban_list):
-            output.append([key, outputdict[key]])
+        # if not (key.replace('.txt', '') in ban_list):
+        #     output.append([key, outputdict[key]])
+        output.append([key, outputdict[key]])
     ##delete docs by criterion
     return output
 
