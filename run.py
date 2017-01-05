@@ -23,10 +23,8 @@ def run_timer_task(session, moment):
             last_run_hour = now.hour
         else:
             moment_min = int(moment.split(':')[0])
-            if last_run_hour >= 0 or now.second % 60 == 0 and (moment_min + 60 - now.minute) % 60 > 10:
+            if last_run_hour >= 0 or (now.second % 60 == 0 and (moment_min + 60 - now.minute) % 60 > 10):
                 run_random_only(session)
-            else:
-                print((moment_min + 60 - now.minute) % 60 > 10)
         print(now.strftime("%Y-%m-%dT%H:%M:%SZ"))
         sys.stdout.flush()
         time.sleep(1)
