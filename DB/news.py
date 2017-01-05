@@ -7,8 +7,9 @@ from datetime import datetime, timedelta
 
 Base = declarative_base()
 RevealMode = {
-    0: 0, 12: 1, 13: 1, 14: 1, 15: 1, 16: 1, 17: 1, 18: 1, 19: 1, 20: 1, 
-    21: 1, 22: 1, 23: 1, 24: 1, 25: 1 
+    0: 0, 15: 1, 16: 1, 18: 1, 19: 1, 20: 1,
+    21: 1, 22: 1, 23: 1, 24: 1, 25: 1, 26: 1, 27: 1,
+    28: 1,
 }
 
 
@@ -27,7 +28,7 @@ class News(Base):
 
 
 def read_all_news(session):
-    return session.query(News).filter(or_(News.time_bound == 0, News.published_at > datetime.now() - timedelta(days=15))).all()
+    return session.query(News).filter(News.published_at > datetime.now() - timedelta(days=30)).all()
 
 
 def save_all_news(news_list, file_path):

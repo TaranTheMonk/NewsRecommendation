@@ -103,10 +103,14 @@ def BuildQ(Dict_1, history):
     return Dict_1, history
 
 def UpdateUserReadingHistory(Dict_1, user_history_all):
+    cnt = 0
     for key in Dict_1:
         if not key in user_history_all:
             user_history_all[key] = set()
-        user_history_all[key].union(ual.DetectNewsIds(Dict_1[key]))
+        new_view = ual.DetectNewsIds(Dict_1[key])
+        cnt += len(new_view)
+        user_history_all[key].update(new_view)
+    return cnt
 
 def UpdateQ(DictOld, DictNew, DeltaPara):
     for key in DictNew:
@@ -263,8 +267,10 @@ def main():
         del Dict_New['']
 
     user_history_all = InputUserReadingHistory()
-    UpdateUserReadingHistory(Dict_New, user_history_all)
+
+    updated_cnt = UpdateUserReadingHistory(Dict_New, user_history_all)
     OutputUserReadingHistory(user_history_all)
+    print("Updated %d UserReadings. " % (updated_cnt))
 
 
     P_Dict_New = copy.deepcopy(Dict_New)

@@ -15,14 +15,17 @@ def move_log_file():
 
 
 def run_timer_task(session, moment):
+    last_run_hour = -1;
     while True:
-        if datetime.utcnow().strftime("%M:%S") == moment:
+        now = datetime.utcnow()
+        if last_run_hour == -1 and now.strftime("%M:%S") == moment or last_run_hour >= 0 and now.hour != last_run_hour:
             run(session)
+            last_run_hour = now.hour
         else:
             moment_min = int(moment.split(':')[0])
-            if datetime.utcnow().second % 60 == 0 and (moment_min + 60 - datetime.utcnow().minute) % 60 > 10:
+            if last_run_hour >= 0 or (now.second == 0 and (moment_min + 60 - now.minute) % 60 > 10):
                 run_random_only(session)
-        print(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
+        print(now.strftime("%Y-%m-%dT%H:%M:%SZ"))
         sys.stdout.flush()
         time.sleep(1)
 
@@ -65,10 +68,7 @@ def run(session):
     import RecommendationSys.src.UpdateMatrix as update_matrix
     update_matrix.main()
 
-    import RecommendationSys.src.Main as result_saver
-    result_saver.SaveOutput()
-
-    insert_rec_from_file(session, os.path.expanduser('~/.recsys/Data/Output/device_result.tsv'))
+    random_shuffle(session)
 
 
 def run_random_only(session):
@@ -80,10 +80,14 @@ def run_random_only(session):
         for device_id in device_ids:
             file.write(device_id[0] + '\n')
     file.close()
+    random_shuffle(session)
+
+def random_shuffle(session):
     import RecommendationSys.src.Main as result_saver
     gen = result_saver.main2()
     os.system('gcc %s/RecommendationSys/src/c_sampler/sampler.c -O1 -o ~/.recsys/Data/ConfigData/sampler.o' % (os.getcwd()))
     for lang in gen:
+        os.system("cp ~/.recsys/Data/ConfigData/all_user_data_c.tsv ~/.recsys/Data/ConfigData/all_user_data_c_%s.tsv" % (lang))
         os.system('cd ~/.recsys/Data/ConfigData && ./sampler.o > ../Output/device_result.tsv')
         insert_rec_from_file(session, os.path.expanduser('~/.recsys/Data/Output/device_result.tsv'), lang=lang)
     print('Shuffle finished')
