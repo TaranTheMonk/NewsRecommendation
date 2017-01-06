@@ -283,7 +283,7 @@ def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs
             ##top k, k = c - 1
             locallist = []
             #i = 0
-            while len(locallist) <= C:
+            while len(locallist) < C:
                 MaxPosition = score.argmax()
                 if not int(fileids[MaxPosition].split('.')[0].split('#')[1]) in allhistory \
                         and not fileids[MaxPosition].replace('.txt', '') in ban_list:
@@ -817,9 +817,9 @@ def main2():
     convert_name_to_id(docslist['en'])
     convert_name_to_id(docslist['cn'])
 
-    SaveCSamplerOutput(en_dict, Prob_en, docslist['en'])
+    SaveCSamplerOutput(en_dict, Prob_en, docslist['en'], allhistory)
     yield 1
-    SaveCSamplerOutput(cn_dict, Prob_cn, docslist['cn'])
+    SaveCSamplerOutput(cn_dict, Prob_cn, docslist['cn'], allhistory)
     yield 2
 
     # output_cn = DocsGive2(cn_dict, Prob_cn, docslist['cn'], 35, 100)
@@ -834,7 +834,7 @@ def main2():
 ##Test id cn: 3A3D33EF-0C28-4430-A700-4ADFAA6327B7
 # return output_en, output_cn
 
-def SaveCSamplerOutput(doc_dict, Prob, docslist):
+def SaveCSamplerOutput(doc_dict, Prob, docslist, user_reading_history):
     with open(os.path.expanduser('~/.recsys/Data/ConfigData/all_docs_c.tsv'), 'w') as f:
         for cate in doc_dict:
             for doc in doc_dict[cate]:
@@ -856,5 +856,11 @@ def SaveCSamplerOutput(doc_dict, Prob, docslist):
                     for doc in docslist[deviceId][cate]:
                         if doc[0] != 'empty':
                             f.write(',' + ','.join([str(doc[2]), str(cate+1), str(doc[1])]))
+                if deviceId in user_reading_history:
+                    f.write(',' + str(len(user_reading_history[deviceId])))
+                    for id in user_reading_history[deviceId]:
+                        f.write(',' + str(id))
+                else:
+                    f.write(',0')
                 f.write('\n')
     f.close()

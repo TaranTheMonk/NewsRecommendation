@@ -3,6 +3,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+const int EXP2[32] = {
+	0x00000001, 0x00000002, 0x00000004, 0x00000008,
+	0x00000010, 0x00000020, 0x00000040, 0x00000080, 
+	0x00000100, 0x00000200, 0x00000400, 0x00000800,
+	0x00001000, 0x00002000, 0x00004000, 0x00008000,
+	0x00010000, 0x00020000, 0x00040000, 0x00080000,
+	0x00100000, 0x00200000, 0x00400000, 0x00800000,
+	0x01000000, 0x02000000, 0x04000000, 0x08000000,
+	0x10000000, 0x20000000, 0x40000000, 0x80000000,
+};
+
 struct Doc {
 	int id, type;
 	double prob;
@@ -100,7 +112,7 @@ int input_doc_list() {
 	return 0;
 }
 
-void sample(double cate_prob[28], struct Doc * sim_list[30],  double sum_user_cate_prob[30], int round, int *result) {
+void sample(double cate_prob[28], struct Doc * sim_list[30],  double sum_user_cate_prob[30], int round, int *result, int *user_read_map) {
 	double sum_cate_prob, prob[28], user_prob[30], docs_prob[30]; 
 	int i, j, index, category;
 	struct Doc * doc;
@@ -157,14 +169,21 @@ void sample(double cate_prob[28], struct Doc * sim_list[30],  double sum_user_ca
 				docs_prob[category] = 0;
 			}
 		}
-		// 
+		// remove duplicate
 		for (j = 0; j < i; j++) {
 			if (result[j] == result[i]) {
 				i--;
 				break;
 			}
 		}
-
+		// remove read
+		if (user_read_map[result[i] >> 5] & EXP2[result[i] & 31]) {
+			i--;
+		}
+		// Avoid infinite loop
+		if (len_memo == 1000) {
+			break;
+		}
 	}
 
 	for (i = 0; i < len_memo; i++) {
@@ -176,11 +195,11 @@ void sample(double cate_prob[28], struct Doc * sim_list[30],  double sum_user_ca
 int sample_stream() {
 	FILE *file;
 	char device_id[50];
-	int i, j, sim_len, id, type;
+	int i, j, sim_len, id, type, read_list_len;
 	double cate_prob[28], sum_user_cate_prob[30], prob;
 	struct Doc *sim_nxt[30], *sim_lst[30];
 	struct Doc *sim_doc_list[10000];
-	int result[35];
+	int user_read_list[10000], user_read_map[10000], result[35];
 
 	if ((file = fopen("all_user_data_c.tsv", "r")) == NULL) {
 		return -1;
@@ -221,12 +240,21 @@ int sample_stream() {
 			sim_lst[type] = sim_doc_list[i];
 			sum_user_cate_prob[type] += prob;
 		}
+		// input user reading list 
+		fscanf(file, ",%d", &read_list_len);
+		for (i = 0; i < read_list_len; i++) {
+			fscanf(file, ",%d", &id);
+			if (i < 10000) {
+				user_read_list[i] = id;
+			}
+			user_read_map[id >> 5] |= EXP2[id & 31];
+		}
 		// printf("Linking OK\n");
 		fscanf(file, "\n");
 		// real sampling and print
 		printf("%s\t[", device_id);
 		for (i = 0; i < 25; i++) {
-			sample(cate_prob, sim_nxt, sum_user_cate_prob, 35, result);
+			sample(cate_prob, sim_nxt, sum_user_cate_prob, 35, result, user_read_map);
 			if (i) {
 				printf(",");
 			}
@@ -240,6 +268,13 @@ int sample_stream() {
 			printf("]");
 		}
 		printf("]\n");
+		if (read_list_len <= 10000) {
+			for (i = 0; i < read_list_len; i++) {
+				user_read_map[user_read_list[i] >> 5] = 0;
+			}
+		} else {
+			memset(user_read_map, 0, sizeof(int) * 10000);
+		}
 	}
 	fclose(file);
 	return 0;
