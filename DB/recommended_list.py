@@ -45,7 +45,7 @@ def insert_rec_from_file(session, file_path, bulksize=100, lang=1):
 
 def get_expired_device_ids(session):
     bulk = 5000
-    ret = session.query(RecommendedList.device_id).filter(text('updated_at < DATE_SUB(now(), INTERVAL 6 hour)')).order_by(text('updated_at, device_id'))[:bulk]
+    ret = session.query(RecommendedList.device_id).filter(text('updated_at < DATE_SUB(now(), INTERVAL 3 hour)')).order_by(text('updated_at, device_id'))[:bulk]
     if len(ret) == 0:
         return ret
     session.execute('UPDATE recommended_list SET updated_at = NOW() WHERE device_id IN (%s)' % (','.join("'" + d[0] + "'" for d in ret)))
