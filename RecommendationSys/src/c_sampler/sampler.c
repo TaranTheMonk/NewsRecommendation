@@ -177,7 +177,7 @@ void sample(double cate_prob[28], struct Doc * sim_list[30],  double sum_user_ca
 			}
 		}
 		// remove read
-		if (user_read_map[result[i] >> 5] & EXP2[result[i] & 31]) {
+		if (user_read_map[(result[i] >> 5) % 10000] & EXP2[result[i] & 31]) {
 			i--;
 		}
 		// Avoid infinite loop
@@ -247,7 +247,7 @@ int sample_stream() {
 			if (i < 10000) {
 				user_read_list[i] = id;
 			}
-			user_read_map[id >> 5] |= EXP2[id & 31];
+			user_read_map[(id >> 5) % 10000] |= EXP2[id & 31];
 		}
 		// printf("Linking OK\n");
 		fscanf(file, "\n");
@@ -270,7 +270,7 @@ int sample_stream() {
 		printf("]\n");
 		if (read_list_len <= 10000) {
 			for (i = 0; i < read_list_len; i++) {
-				user_read_map[user_read_list[i] >> 5] = 0;
+				user_read_map[(user_read_list[i] >> 5) % 10000] = 0;
 			}
 		} else {
 			memset(user_read_map, 0, sizeof(int) * 10000);
