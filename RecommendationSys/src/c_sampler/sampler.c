@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 
-const int EXP2[32] = {
+const unsigned int EXP2[32] = {
 	0x00000001, 0x00000002, 0x00000004, 0x00000008,
 	0x00000010, 0x00000020, 0x00000040, 0x00000080, 
 	0x00000100, 0x00000200, 0x00000400, 0x00000800,
@@ -112,7 +112,7 @@ int input_doc_list() {
 	return 0;
 }
 
-void sample(double cate_prob[28], struct Doc * sim_list[30],  double sum_user_cate_prob[30], int round, int *result, int *user_read_map) {
+void sample(double cate_prob[28], struct Doc * sim_list[30],  double sum_user_cate_prob[30], int round, int *result, unsigned int *user_read_map) {
 	double sum_cate_prob, prob[28], user_prob[30], docs_prob[30]; 
 	int i, j, index, category;
 	struct Doc * doc;
@@ -199,7 +199,8 @@ int sample_stream() {
 	double cate_prob[28], sum_user_cate_prob[30], prob;
 	struct Doc *sim_nxt[30], *sim_lst[30];
 	struct Doc *sim_doc_list[10000];
-	int user_read_list[10000], user_read_map[10000], result[35];
+	int user_read_list[10000],result[35];
+	unsigned int user_read_map[10000];
 
 	if ((file = fopen("all_user_data_c.tsv", "r")) == NULL) {
 		return -1;
