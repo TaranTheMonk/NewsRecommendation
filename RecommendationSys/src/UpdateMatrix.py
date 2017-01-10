@@ -292,8 +292,8 @@ def main():
     OutputP_Count(P_Dict_Old)
     OutputQ_Count(Q_Dict_Old)
 
-    lang_dict = dict.fromkeys(enUser, 1)
-    lang_dict.update(dict.fromkeys(cnUser, 2))
+    lang_dict = dict.fromkeys(enUser & Dict_New.keys(), 1)
+    lang_dict.update(dict.fromkeys(cnUser & Dict_New.keys(), 2))
     OutputUpdatedP(P_Dict_Old, lang_dict, os.path.expanduser('~/.recsys/Data/ConfigData/Updated-P-Matrix.tsv'))
 
     print('Updating Finished')
