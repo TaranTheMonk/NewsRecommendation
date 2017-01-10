@@ -1,6 +1,4 @@
 from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy import create_engine, or_
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 import jsonpickle
 from datetime import datetime, timedelta

@@ -59,6 +59,15 @@ def OutputP_Count(Dict):
     print('P-Matrix write in finished')
     return
 
+def OutputUpdatedP(Dict, lang_dict, filename):
+    with open(filename, mode='w') as wf:
+        for device_id in Dict:
+            if device_id in lang_dict:
+                wf.write('\t'.join([device_id, json.dumps(Dict[device_id]), str(lang_dict[device_id])]))
+                wf.write('\n')
+    wf.close()
+
+
 def ProbabilityP(Dict):
     for key in Dict:
         Dict[key] = ual.PBuildProbability(Dict[key])
@@ -103,14 +112,14 @@ def BuildQ(Dict_1, history):
     return Dict_1, history
 
 def UpdateUserReadingHistory(Dict_1, user_history_all):
-    cnt = 0
+    updated = set()
     for key in Dict_1:
         if not key in user_history_all:
             user_history_all[key] = set()
         new_view = ual.DetectNewsIds(Dict_1[key])
-        cnt += len(new_view)
         user_history_all[key].update(new_view)
-    return cnt
+        updated.add(key)
+    return updated
 
 def UpdateQ(DictOld, DictNew, DeltaPara):
     for key in DictNew:
@@ -164,9 +173,9 @@ def OutputReading(history):
     print('History write in finished')
     return
 
-def OutputUserReadingHistory(user_history_all):
-    with open(os.path.expanduser('~/.recsys/Data/ConfigData/UserReadingHistory.tsv'), mode='w') as wf:
-        for record in user_history_all:
+def OutputUserReadingHistory(user_history_all, key_set, filename):
+    with open(filename, mode='w') as wf:
+        for record in key_set:
             if not record == '' and len(user_history_all[record]) > 0:
                 wf.write(record + "\t" + json.dumps(list(user_history_all[record]), separators=(',', ':')) + '\n')
     wf.close()
@@ -268,9 +277,10 @@ def main():
 
     user_history_all = InputUserReadingHistory()
 
-    updated_cnt = UpdateUserReadingHistory(Dict_New, user_history_all)
-    OutputUserReadingHistory(user_history_all)
-    print("Updated %d UserReadings. " % (updated_cnt))
+    updated_set = UpdateUserReadingHistory(Dict_New, user_history_all)
+    OutputUserReadingHistory(user_history_all, user_history_all.keys(), os.path.expanduser('~/.recsys/Data/ConfigData/UserReadingHistory.tsv'))
+    OutputUserReadingHistory(user_history_all, updated_set, os.path.expanduser('~/.recsys/Data/ConfigData/UpdatedUserReadingHistory.tsv'))
+    print("Updated %d UserReadings. " % (len(updated_set)))
 
 
     P_Dict_New = copy.deepcopy(Dict_New)
@@ -281,6 +291,10 @@ def main():
     Q_Dict_Old = UpdateQ(Q_Dict_Old, Q_Dict_New, Delta)
     OutputP_Count(P_Dict_Old)
     OutputQ_Count(Q_Dict_Old)
+
+    lang_dict = dict.fromkeys(enUser, 1)
+    lang_dict.update(dict.fromkeys(cnUser, 2))
+    OutputUpdatedP(P_Dict_Old, lang_dict, os.path.expanduser('~/.recsys/Data/ConfigData/Updated-P-Matrix.tsv'))
 
     print('Updating Finished')
     print('Building Probability Matrix')

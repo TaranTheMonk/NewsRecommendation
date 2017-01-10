@@ -1,5 +1,7 @@
 from DB.news import *
 from DB.recommended_list import *
+from DB.news_reading_history import *
+from DB.user_interest import *
 import argparse
 import os
 import time
@@ -68,6 +70,8 @@ def run(session):
     import RecommendationSys.src.UpdateMatrix as update_matrix
     update_matrix.main()
 
+    insert_news_reading_history_from_file(session, os.path.expanduser('~/.recsys/Data/ConfigData/UpdatedUserReadingHistory.tsv'))
+    insert_user_info_from_file(session, os.path.expanduser('~/.recsys/Data/ConfigData/UpdatedUserReadingHistory.tsv'))
     random_shuffle(session)
 
 
