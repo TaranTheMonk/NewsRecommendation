@@ -22,7 +22,7 @@ def insert_news_reading_history(session, nrhs, bulksize=1000):
     if len(nrhs) == 0:
         return
     sqlb = "INSERT INTO recommend_system.news_reading_history (device_id, list) VALUES"
-    sqldata = ','.join("('%s', '%s')" % (nrh.device_id, nrh.interest) for nrh in nrhs)
+    sqldata = ','.join("('%s', '%s')" % (nrh.device_id, nrh.list) for nrh in nrhs)
     sqle = ' ON DUPLICATE KEY UPDATE list=values(list)'
     session.execute(''.join([sqlb, sqldata, sqle]))
     session.commit()
