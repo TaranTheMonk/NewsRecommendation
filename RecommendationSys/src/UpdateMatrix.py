@@ -63,7 +63,7 @@ def OutputUpdatedP(Dict, lang_dict, filename):
     with open(filename, mode='w') as wf:
         for device_id in Dict:
             if device_id in lang_dict:
-                wf.write('\t'.join([device_id, json.dumps(Dict[device_id]), str(lang_dict[device_id])]))
+                wf.write('\t'.join([device_id, json.dumps(Dict[device_id], separators=(',', ':')), str(lang_dict[device_id])]))
                 wf.write('\n')
     wf.close()
 

@@ -71,7 +71,7 @@ def run(session):
     update_matrix.main()
 
     insert_news_reading_history_from_file(session, os.path.expanduser('~/.recsys/Data/ConfigData/UpdatedUserReadingHistory.tsv'))
-    insert_user_info_from_file(session, os.path.expanduser('~/.recsys/Data/ConfigData/UpdatedUserReadingHistory.tsv'))
+    insert_user_info_from_file(session, os.path.expanduser('~/.recsys/Data/ConfigData/Updated-P-Matrix.tsv'))
     random_shuffle(session)
 
 

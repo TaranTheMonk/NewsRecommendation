@@ -34,7 +34,7 @@ def insert_user_info_from_file(session, filename, bulksize=1000):
     infos = []
     with open(filename, 'r') as f:
         for row in f:
-            col = row.split('\n')
+            col = row.split('\t')
             if len(col) == 3:
                 infos.append(UserInfo(col[0], col[1], int(col[2])))
     f.close()
