@@ -14,10 +14,10 @@ def mergeProb(P_Matrix, Q_Matrix, Weight):
         Q_Matrix[key][3] += Weight * P_Matrix[key][3]
         Q_Matrix[key][6] += Weight * P_Matrix[key][4]
         Q_Matrix[key][1] += Weight * P_Matrix[key][5]
-        Q_Matrix[key][7] += Weight * P_Matrix[key][6]
-        for i in range(len(Q_Matrix[key])):
-            if not (i in P_id):
-                Q_Matrix[key][i] += Weight * (P_Matrix[key][7] / (len(Q_Matrix[key]) - len(P_Matrix[key])))
+        # Q_Matrix[key][7] += Weight * P_Matrix[key][6]
+        # for i in range(len(Q_Matrix[key])):
+        #     if not (i in P_id):
+        #         Q_Matrix[key][i] += Weight * (P_Matrix[key][7] / (len(Q_Matrix[key]) - len(P_Matrix[key])))
         ToT = sum(Q_Matrix[key])
         Q_Matrix[key] = list(map(lambda x: x/ToT, Q_Matrix[key]))
     return Q_Matrix

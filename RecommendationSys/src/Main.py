@@ -75,7 +75,12 @@ def merge(left, right, column):
 def mergeProb(P_Matrix, Q_Matrix, Weight):
     ## P: [promotion, property, food, movie, lottery, home, news, other]
     ## Q: [6, 1, 3, 4, 7, 2, 8, rest] [5,0,2,3,6,1,7]
-    P_id = {0, 1, 2, 3, 5, 6, 7}
+
+    ## {(x + y) / (2 + x) = 0.2, y / (2 + x) = 0.01
+    ## 0.2 is the fix prob of news, 0.01 is the least prob for each category
+    ## x = 0.469, add here
+    ## y = 0.02469, add in building Q probability matrix
+    #P_id = {0, 1, 2, 3, 5, 6}
     for key in P_Matrix.keys():
         Q_Matrix[key][5] += Weight * P_Matrix[key][0]
         Q_Matrix[key][0] += Weight * P_Matrix[key][1]
@@ -83,10 +88,10 @@ def mergeProb(P_Matrix, Q_Matrix, Weight):
         Q_Matrix[key][3] += Weight * P_Matrix[key][3]
         Q_Matrix[key][6] += Weight * P_Matrix[key][4]
         Q_Matrix[key][1] += Weight * P_Matrix[key][5]
-        Q_Matrix[key][7] += Weight * P_Matrix[key][6]
-        for i in range(len(Q_Matrix[key])):
-            if not (i in P_id):
-                Q_Matrix[key][i] += Weight * (P_Matrix[key][7] / (len(Q_Matrix[key]) - len(P_Matrix[key])))
+        Q_Matrix[key][7] += 0.469
+        # for i in range(len(Q_Matrix[key])):
+        #     if not (i in P_id):
+        #         Q_Matrix[key][i] += Weight * (P_Matrix[key][7] / (len(Q_Matrix[key]) - len(P_Matrix[key])))
         ToT = sum(Q_Matrix[key])
         Q_Matrix[key] = list(map(lambda x: x / ToT, Q_Matrix[key]))
     return Q_Matrix
@@ -274,7 +279,7 @@ def GiveRecommendationBySimilarity(userHistory, index, fileids, timematrix, docs
             score = index[tfidf[docs[text + '.txt']]]
             maxmum = max(score)
             minmum = min(score)
-            score = np.array(list(map(lambda x: ((x - minmum) + (maxmum - minmum) * 0.01 / (maxmum - minmum))
+            score = np.array(list(map(lambda x: (((x - minmum) + (maxmum - minmum) * 0.01) / (maxmum - minmum))
                                                 * ((TimeScoreFunctionRelevant(0) + TimeScoreFunctionIrrelevant(0)) / 2),
                                       score)))
             score = score * timematrix
@@ -522,23 +527,23 @@ def DocsGive(mega_doc_dict, Prob_Matrix, docslist, length, size):
 
 
 def TimeScoreFunctionRelevant(x):
-    InterSectionHours = 36
+    InterSectionHours = 48
     # 5 * 24 = 120
-    y = 1.01 ** - (x - InterSectionHours)
+    y = 1.0293 ** - (x - InterSectionHours)
     return y
 
 
 def TimeScoreFunctionIrrelevant(x):
-    InterSectionHours = 120
+    InterSectionHours = 48
     # 5 * 24 = 120
-    y = 1.005 ** - (x - InterSectionHours)
+    y = 1.014545 ** - (x - InterSectionHours)
     return y
 
 
-# input = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
-# output = []
-# for item in input:
-#     output.append([TimeScoreFunctionRelevant(item), TimeScoreFunctionIrrelevant(item)])
+input = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190]
+output = []
+for item in input:
+    output.append([TimeScoreFunctionRelevant(item), TimeScoreFunctionIrrelevant(item)])
 
 def TimeScore(timePair):
     score = 0

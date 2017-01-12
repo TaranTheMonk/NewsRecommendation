@@ -185,7 +185,7 @@ def DetectNewsIds(raw_input):
     return output
 
 
-def PBuildProbability(matrix):
+def PBuildProbability2(matrix):
     total = sum(matrix)
     matrix = [matrix[0], sum(matrix[1:5]), matrix[5], sum(matrix[6:7]), matrix[8], matrix[9]]
     num_category = len(matrix)
@@ -193,8 +193,8 @@ def PBuildProbability(matrix):
     if total == 0:
         total = num_category*C
     rest = 1 - C * num_category
-    cr_s = 5
-    cr_t = 10
+    cr_s = 10
+    cr_t = 20
     if sum(matrix) < cr_t and max(matrix) < cr_s:
         residual = rest * (1 - max([sum(matrix)/cr_t, max(matrix)/cr_s]))
     else:
@@ -215,20 +215,42 @@ def PBuildProbability(matrix):
     other = total*(3/7)
 ##no action cant mean no interest, so other will take 20% probability
     for i in range(len(output)):
-        output[i] = output[i]/(total + other)
-    output.append(0.2)
-    output.append(0.1)
+        output[i] = output[i] / (total + other)
+    # no need to append rest and news
+    # output.append(0.2)
+    # output.append(0.1)
     return output
 ##output = [p1, p1, ....]
 ##no action cant mean no interest, so other will take 10% probability
 ##news will take 20%
 
+def PBuildProbability(matrix):
+    total = sum(matrix)
+    MergedMatrix = [matrix[0], sum(matrix[1:5]), matrix[5], sum(matrix[6:8]), matrix[8], matrix[9]]
+    num_category = len(MergedMatrix)
+    rest = 1
+    cr_s = 10
+    cr_t = 20
+    if sum(MergedMatrix) < cr_t and max(MergedMatrix) < cr_s:
+        residual = rest * (1 - max([sum(MergedMatrix)/cr_t, max(MergedMatrix)/cr_s]))
+    else:
+        residual = 0
+    rest = rest - residual
+    output = [residual/num_category]* num_category
+    if sum(MergedMatrix) != 0:
+        for i in range(len(MergedMatrix)):
+            output[i] = output[i] + rest * (MergedMatrix[i]/sum(MergedMatrix))
+    else:
+        for i in range(len(MergedMatrix)):
+            output[i] = output[i] + rest / num_category
+    return output
+
 def QBuildProbability(matrix):
     num_category = len(matrix)
-    C = 0.02
+    C = 0.02469
     rest = 1 - C*num_category
-    cr_s = 5
-    cr_t = 10
+    cr_s = 10
+    cr_t = 20
 ##for single and total count threshold
     if sum(matrix) < cr_t and max(matrix) < cr_s:
         residual = rest * (1 - max([sum(matrix)/cr_t, max(matrix)/cr_s]))
