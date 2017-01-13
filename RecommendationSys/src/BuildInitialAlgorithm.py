@@ -27,7 +27,7 @@ c1_movies = re.compile('(L_Mov)+')
 p1_cinemas = re.compile('^/v[0-9.]+/cinemas')
 c1_cinemas = re.compile('(L_Cin)+')
 
-p1_lotteries = re.compile('^/v[0-9.]+/lotteries')
+p1_lotteries = re.compile('^/v[0-9.]+/(loteries|sweep|toto|4d)')
 c1_lotteries = re.compile('(L_Lot)+')
 
 p1_mrt = re.compile('^/v[0-9.]+/transportations/mrt_path')
