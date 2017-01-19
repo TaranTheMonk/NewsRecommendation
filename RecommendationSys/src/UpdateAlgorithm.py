@@ -3,7 +3,7 @@ import re
 
 #Compile Regular expressions
 #Add more regular expressions
-p1_promotion = re.compile('^/api/v[0-9.]+(/promotions|/promotions/[0-9]+)$')
+p1_promotion = re.compile('(/promotions$|/promotions/\d+)')
 c1_promotion = re.compile('(L_Pro)+')
 
 p1_rental = re.compile('^/v[0-9.]+/properties(/rental|/rental/[0-9]+)$')
@@ -12,22 +12,22 @@ c1_rental = re.compile('(L_Ren)+')
 p1_sale = re.compile('^/v[0-9.]+/properties(/sales|/sales/[0-9]+)$')
 c1_sale = re.compile('(L_Sal)+')
 
-p1_projects = re.compile('^/v[0-9.]+/renovations(/projects|/projects/[0-9]+)$')
+p1_projects = re.compile('/renovation(/projects$|/projects\d+)')
 c1_projects = re.compile('(L_Prj)+')
 
-p1_companies = re.compile('^/v[0-9.]+/renovations(/companies|/companies/[0-9]+)$')
+p1_companies = re.compile('/renovation(/companies$|/companies\d+)')
 c1_companies = re.compile('(L_Com)+')
 
-p1_restaurants = re.compile('^/api/v[0-9.]+(/restaurants|/restaurants/[0-9]+)$')
+p1_restaurants = re.compile('(/restaurants$|/restaurants/\d+)')
 c1_restaurants = re.compile('(L_Res)+')
 
-p1_movies = re.compile('^/v[0-9.]+(/movies|/movies/[0-9]+)$')
+p1_movies = re.compile('(/movies$|/movies/\d+)')
 c1_movies = re.compile('(L_Mov)+')
 
-p1_cinemas = re.compile('^/v[0-9.]+/cinemas')
+p1_cinemas = re.compile('(/cinemas$|/cinemas/\d+)')
 c1_cinemas = re.compile('(L_Cin)+')
 
-p1_lotteries = re.compile('^/v[0-9.]+/(loteries|sweep|toto|4d)')
+p1_lotteries = re.compile('/lotteries')
 c1_lotteries = re.compile('(L_Lot)+')
 
 p1_mrt = re.compile('^/v[0-9.]+/transportations/mrt_path')
@@ -39,7 +39,7 @@ c1_bus = re.compile('(L_Bus)+')
 p1_directions = re.compile('^/v[0-9.]+/transportations/directions')
 c1_directions = re.compile('(L_Dir)+')
 
-p1_homeservices = re.compile('^/v[0-9.]+/homeservices/services')
+p1_homeservices = re.compile('(/services$|/services/\d+)')
 c1_homeservices = re.compile('(L_Hom)+')
 ##Initial Status Matrix
 Reg_M1 = [p1_promotion, p1_rental, p1_sale, p1_projects, p1_companies, p1_restaurants, p1_movies, p1_cinemas, p1_lotteries, p1_homeservices]
@@ -80,7 +80,7 @@ def StatusTransform(raw_status):
     output = []
     for i in range(len(raw_status)):
         for pos in range(len(Title)):
-            if (Reg_M1[pos].match(raw_status[i][0])):
+            if (Reg_M1[pos].search(raw_status[i][0])):
                 sta = StaList[pos]
                 output.append([sta, raw_status[i][1]])
                 break
