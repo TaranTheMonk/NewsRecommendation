@@ -6,10 +6,10 @@ import re
 p1_promotion = re.compile('(/promotions$|/promotions/\d+)')
 c1_promotion = re.compile('(L_Pro)+')
 
-p1_rental = re.compile('^/v[0-9.]+/properties(/rental|/rental/[0-9]+)$')
+p1_rental = re.compile('(/rental$|/rental/\d+)')
 c1_rental = re.compile('(L_Ren)+')
 
-p1_sale = re.compile('^/v[0-9.]+/properties(/sales|/sales/[0-9]+)$')
+p1_sale = re.compile('(/sales$|/sales/\d+)')
 c1_sale = re.compile('(L_Sal)+')
 
 p1_projects = re.compile('/renovation(/projects$|/projects\d+)')
